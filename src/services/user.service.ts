@@ -33,7 +33,13 @@ export class UserService {
     return this.userRepo.update(updatedData);
   }
 
+  /**
+   * Soft-delete a user
+   */
   delete(id: string) {
-    return this.userRepo.delete(id);
+    return this.userRepo.update({
+      user_id: id,
+      delete_date: new Date(),
+    });
   }
 }
