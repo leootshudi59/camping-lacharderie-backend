@@ -1,6 +1,7 @@
 name: Scheduled Delete Old Users
 
 on:
+  push:                # Add this line
   schedule:
     - cron: '0 3 1,15 * *' # Le 1er et le 15 de chaque mois à 03:00 UTC (modifiable, cf. https://crontab.guru)
   workflow_dispatch:     # Pour pouvoir lancer manuellement
