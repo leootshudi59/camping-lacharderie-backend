@@ -15,7 +15,7 @@ jobs:
 
       - name: Run the delete_old_users procedure
         env:
-          DATABASE_URL: ${{ secrets.DIRECT_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
         run: |
           export PGPASSWORD=$(echo $DIRECT_URL | sed -E 's/.*:([^@]+)@.*/\1/')
           export PGUSER=$(echo $DIRECT_URL | sed -E 's|postgresql://([^:]+):.*|\1|')
