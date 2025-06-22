@@ -13,9 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors()); // Permet les appels cross-origin
 app.use(helmet()); // Headers de sécurité
 
-app.use('/', (req, res) => {
-  res.json({ message: 'Welcome to the API' });
-});
+
 // ----------- Routes -----------
 app.use('/api/users', userRoutes);
 
@@ -30,8 +28,12 @@ app.use((err: Error, _req: any, res: any, _next: any) => {
   res.status(500).json({ error: err.message || 'Internal Server Error' });
 });
 
+app.use('/', (req, res) => {
+  res.json({ message: 'Welcome to the API' });
+});
+
 // ----------- Démarrage du serveur -----------
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
