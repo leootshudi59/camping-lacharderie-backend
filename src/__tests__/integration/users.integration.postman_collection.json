@@ -7,67 +7,166 @@
 	},
 	"item": [
 		{
-			"name": "Create User",
-			"event": [
+			"name": "CREATE",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 201\", function () {",
-							"    pm.response.to.have.status(201);",
-							"});",
-							"",
-							"pm.test(\"Body has a user_id\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.user_id).to.exist;",
-							"    pm.environment.set(\"user_id\", jsonData.user_id);",
-							"});",
-							"",
-							"// Stocker l'id du user pour la suite des tests (GET/PUT/DELETE)",
-							"var jsonData = pm.response.json();",
-							"pm.environment.set(\"user_id\", jsonData.user_id);"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223344\",\n  \"password_hash\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"name": "Create First User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Body has a user_id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.user_id).to.exist;",
+									"    pm.environment.set(\"user_id\", jsonData.user_id);",
+									"});",
+									"",
+									"// Stocker l'id du user pour la suite des tests (GET/PUT/DELETE)",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"user_id\", jsonData.user_id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
 						}
-					}
-				},
-				"url": {
-					"raw": "localhost:8000/api/users/",
-					"host": [
-						"localhost"
 					],
-					"port": "8000",
-					"path": [
-						"api",
-						"users",
-						""
-					]
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223344\",\n  \"password_hash\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/users/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Should fail - 2nd User same mail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400 or 409\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([400, 409]);",
+									"});",
+									"pm.test(\"Message d'erreur doublon\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error || jsonData.message).to.include(\"Email already in use\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0622334455\",\n  \"password_hash\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/users/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Should fail - 2nd User same phone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400 or 409\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([400, 409]);",
+									"});",
+									"pm.test(\"Message d'erreur doublon\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error || jsonData.message).to.include(\"Phone already in use\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester2@example.com\",\n  \"phone\": \"0611223344\",\n  \"password_hash\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/users/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
 			"name": "Get User",

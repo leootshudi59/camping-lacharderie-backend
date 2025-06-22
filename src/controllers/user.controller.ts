@@ -18,24 +18,55 @@ export const getAllUsers = async (_: Request, res: Response, next: NextFunction)
 /**
  * Get a user by ID
  */
-export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+export const getUserById = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   const user = await service.findById(req.params.user_id);
   if (!user) return res.status(404).json({ message: 'User not found' });
   res.status(200).json(user);
 };
 
 /**
+ * Get a user by email
+ */
+export const getUserByEmail = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  const user = await service.findByEmail(req.params.email);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  res.status(200).json(user);
+};
+
+/**
+ * Get a user by phone
+ */
+export const getUserByPhone = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  const debugMode = process.env.DEBUG_MODE === 'true';
+  
+  try {
+    const user = await service.findByPhone(req.params.phone);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json(user);
+  } catch (err: any) {
+    debugMode && console.error(err);
+    res.status(400).json({ error: err.message });
+  }
+};
+
+/**
  * Create a new user
  */
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (req: Request, res: Response): Promise<any> => {
+  const debugMode = process.env.DEBUG_MODE === 'true';
+
   try {
-    const debugMode = process.env.DEBUG_MODE === 'true';
     debugMode && console.log("received body: " + req.body);
     const dto = CreateUserSchema.parse(req.body);
     const user = await service.create(dto);
     res.status(201).json(user);
   } catch (err: any) {
-    console.log(err);
+    debugMode && console.error(err);
+
+    if (err instanceof Error && (err.message.includes('already in use'))) {
+      return res.status(409).json({ error: err.message });
+    }
+
     res.status(400).json({ error: err.message });
   }
 };
@@ -44,14 +75,15 @@ export const createUser = async (req: Request, res: Response) => {
  * Update an existing user
  */
 export const updateUser = async (req: Request, res: Response) => {
+  const debugMode = process.env.DEBUG_MODE === 'true';
+
   try {
-    const debugMode = process.env.DEBUG_MODE === 'true';
     debugMode && console.log("received user_id: ", req.params.user_id, "body: ", req.body);
     const dto = UpdateUserSchema.parse({ ...req.body, user_id: req.params.user_id });
     const user = await service.update(dto);
     res.status(200).json(user);
   } catch (err: any) {
-    console.log(err);
+    debugMode && console.error(err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -60,13 +92,14 @@ export const updateUser = async (req: Request, res: Response) => {
  * Delete a user by ID
  */
 export const deleteUser = async (req: Request, res: Response) => {
+  const debugMode = process.env.DEBUG_MODE === 'true';
+
   try {
-    const debugMode = process.env.DEBUG_MODE === 'true';
     debugMode && console.log("received user_id: " + req.params.user_id);
     await service.delete(req.params.user_id);
     res.status(204).send();
   } catch (err: any) {
-    console.log(err);
+    debugMode && console.error(err);
     res.status(400).json({ error: err.message });
   }
 };

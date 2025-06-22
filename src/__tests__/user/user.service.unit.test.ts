@@ -37,6 +37,44 @@ describe('UserService - unit tests with InMemory repository', () => {
         expect(found?.last_name).toBe('Me');
     });
 
+    it('throws if email is already in use', async () => {
+        await service.create({
+            first_name: 'Leo',
+            last_name: 'Dup',
+            email: 'test@email.com',
+            password_hash: 'hash',
+            role: 1,
+        });
+        await expect(
+            service.create({
+                first_name: 'Another',
+                last_name: 'Dup',
+                email: 'test@email.com',
+                password_hash: 'hash',
+                role: 1,
+            })
+        ).rejects.toThrow('Email already in use');
+    });
+    
+    it('throws if phone is already in use', async () => {
+        await service.create({
+            first_name: 'Another',
+            last_name: 'Dup1',
+            phone: '0612345678',
+            password_hash: 'hash',
+            role: 1,
+        });
+        await expect(
+            service.create({
+                first_name: 'Another',
+                last_name: 'Dup2',
+                phone: '0612345678',
+                password_hash: 'hash',
+                role: 1,
+            })
+        ).rejects.toThrow('Phone already in use');
+    });    
+
     it('updates a user', async () => {
         const user = await service.create({
             first_name: 'Old',
@@ -64,7 +102,8 @@ describe('UserService - unit tests with InMemory repository', () => {
         await service.delete(user.user_id);
         const afterDelete = await service.findById(user.user_id);
 
-        expect(afterDelete).toBeNull();
+        expect(afterDelete).not.toBeNull();
+        expect(afterDelete?.delete_date).toBeDefined();
     });
 
     it('returns all users', async () => {

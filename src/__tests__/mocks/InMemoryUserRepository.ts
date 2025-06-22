@@ -17,8 +17,12 @@ export class InMemoryUserRepository implements IUserRepository {
   }
 
   async findByEmail(email: string) {
-    return this.store.get(email) ?? null;
+    return [...this.store.values()].find(user => user.email === email) ?? null;
   }
+  
+  async findByPhone(phone: string) {
+    return [...this.store.values()].find(user => user.phone === phone) ?? null;
+  }  
 
   async create(data: Omit<User, 'created_at' | 'delete_date'>) {
     const now = new Date();

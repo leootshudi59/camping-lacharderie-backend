@@ -5,10 +5,29 @@ import { users as User } from '@prisma/client';
 import { randomUUID } from 'crypto';
 
 export class UserService {
-  constructor(private userRepo: IUserRepository) {}
+  constructor(private userRepo: IUserRepository) { }
 
   async create(data: CreateUserDto): Promise<User> {
     // TODO: hash password properly (bcrypt, argon2…)
+    // Email uniqueness check
+    if (data.email) {
+      const existingByEmail = await this.userRepo.findByEmail?.(data.email);
+
+      if (existingByEmail) {
+        throw new Error('Email already in use');
+      }
+    }
+    // Phone uniqueness check
+    if (data.phone) {
+      console.log('Phone uniqueness check');
+      const existingByPhone = await this.userRepo.findByPhone?.(data.phone);
+      console.log("all users: ", await this.userRepo.findAll());
+
+      if (existingByPhone) {
+        throw new Error('Phone already in use');
+      }
+    }
+
     const newUser: User = {
       ...data,
       user_id: randomUUID(),
@@ -23,6 +42,14 @@ export class UserService {
 
   findById(id: string) {
     return this.userRepo.findById(id);
+  }
+
+  findByEmail(email: string) {
+    return this.userRepo.findByEmail?.(email);
+  }
+
+  findByPhone(phone: string) {
+    return this.userRepo.findByPhone?.(phone);
   }
 
   update(data: UpdateUserDto) {
