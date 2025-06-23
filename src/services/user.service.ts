@@ -3,12 +3,21 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { users as User } from '@prisma/client';
 import { randomUUID } from 'crypto';
+import bcrypt from 'bcrypt';
+const SALT_ROUNDS = 10;
 
 export class UserService {
   constructor(private userRepo: IUserRepository) { }
 
+  async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, SALT_ROUNDS);
+  }
+
+  async validatePassword(plainPassword: string, hash: string): Promise<boolean> {
+    return await bcrypt.compare(plainPassword, hash);
+  }
+
   async create(data: CreateUserDto): Promise<User> {
-    // TODO: hash password properly (bcrypt, argon2…)
     // Email uniqueness check
     if (data.email) {
       const existingByEmail = await this.userRepo.findByEmail?.(data.email);
@@ -28,8 +37,11 @@ export class UserService {
       }
     }
 
+    const hashedPassword = await this.hashPassword(data.password_hash);
+
     const newUser: User = {
       ...data,
+      password_hash: hashedPassword,
       user_id: randomUUID(),
       created_at: new Date(),
     } as User;
@@ -68,5 +80,31 @@ export class UserService {
       user_id: id,
       delete_date: new Date(),
     });
+  }
+
+  /**
+   * Authenticates a user by email OR phone and password.
+   * @param identifier email OR phone
+   * @param password plain password (not hashed)
+   * @throws Error if credentials are invalid
+   * @returns User object
+   */
+  async login(identifier: string, password: string): Promise<User> {
+    // Detect mail format
+    let user: User | null = null;
+    if (identifier.includes('@')) {
+      user = await this.userRepo.findByEmail?.(identifier) ?? null;
+    } else {
+      user = await this.userRepo.findByPhone?.(identifier) ?? null;
+    }
+
+    if (!user) throw new Error('Invalid credentials');
+
+    const isMatch = await this.validatePassword(password, user.password_hash);
+    if (!isMatch) throw new Error('Invalid credentials');
+
+    delete (user as any).password_hash;
+
+    return user;
   }
 }

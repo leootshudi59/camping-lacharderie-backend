@@ -3,6 +3,7 @@ import { PrismaUserRepository } from '../repositories/prisma/PrismaUserRepositor
 import { UserService } from '../services/user.service';
 import { CreateUserSchema } from '../dtos/create-user.dto';
 import { UpdateUserSchema } from '../dtos/update-user.dto';
+import { LoginUserSchema } from '../dtos/login-user.dto';
 
 const repo = new PrismaUserRepository();
 const service = new UserService(repo);
@@ -101,5 +102,25 @@ export const deleteUser = async (req: Request, res: Response) => {
   } catch (err: any) {
     debugMode && console.error(err);
     res.status(400).json({ error: err.message });
+  }
+};
+
+/**
+ * Login a user (via email or phone)
+ */
+export const loginUser = async (req: Request, res: Response): Promise<any> => {
+  const debugMode = process.env.DEBUG_MODE === 'true';
+
+  try {
+    debugMode && console.log("received body: " + req.body);
+    const dto = LoginUserSchema.parse(req.body);
+    const user = await service.login(dto.identifier, dto.password); // ✅ utilise dto
+
+    // Remove password_hash from response
+    const { password_hash, ...safeUser } = user;
+    res.status(200).json(safeUser);
+  } catch (err: any) {
+    debugMode && console.error(err);
+    res.status(401).json({ error: 'Invalid credentials' });
   }
 };
