@@ -50,7 +50,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223344\",\n  \"password_hash\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223344\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -161,6 +161,106 @@
 								"api",
 								"users",
 								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "LOGIN",
+			"item": [
+				{
+					"name": "Login with good password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"User returned without password_hash\", function () {",
+									"  var json = pm.response.json();",
+									"  pm.expect(json).to.have.property('email');",
+									"  pm.expect(json).to.not.have.property('password_hash');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identifier\": \"leo.tester@example.com\",\n  \"password\": \"s3curePassword1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/users/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login with bad password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"  pm.response.to.have.status(401);",
+									"});",
+									"pm.test(\"Error message invalid credentials\", function () {",
+									"  var json = pm.response.json();",
+									"  pm.expect(json.error).to.eql(\"Invalid credentials\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identifier\": \"leo.tester@example.com\",\n  \"password\": \"badpassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/users/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"login"
 							]
 						}
 					},

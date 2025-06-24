@@ -1,8 +1,20 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'crypto';
-
 import { UserService } from '../../../src/services/user.service';
 import { InMemoryUserRepository } from '../mocks/InMemoryUserRepository';
+import bcrypt from 'bcrypt';
+
+vi.mock('bcrypt', () => {
+    return {
+        default: {
+            hash: vi.fn(async (plain) => `hashed_${plain}`),
+            compare: vi.fn(async (plain, hash) => hash === `hashed_${plain}`),
+        },
+        hash: vi.fn(async (plain) => `hashed_${plain}`),
+        compare: vi.fn(async (plain, hash) => hash === `hashed_${plain}`),
+    }
+});
+
 
 describe('UserService - unit tests with InMemory repository', () => {
     let service: UserService;
@@ -16,7 +28,7 @@ describe('UserService - unit tests with InMemory repository', () => {
         const created = await service.create({
             first_name: 'Leo',
             last_name: 'Tester',
-            password_hash: 'hash',
+            password: 'hash',
             role: 1,
         });
 
@@ -29,7 +41,7 @@ describe('UserService - unit tests with InMemory repository', () => {
         const user = await service.create({
             first_name: 'Find',
             last_name: 'Me',
-            password_hash: 'hash',
+            password: 'hash',
             role: 1,
         });
 
@@ -42,7 +54,7 @@ describe('UserService - unit tests with InMemory repository', () => {
             first_name: 'Leo',
             last_name: 'Dup',
             email: 'test@email.com',
-            password_hash: 'hash',
+            password: 'hash',
             role: 1,
         });
         await expect(
@@ -50,18 +62,18 @@ describe('UserService - unit tests with InMemory repository', () => {
                 first_name: 'Another',
                 last_name: 'Dup',
                 email: 'test@email.com',
-                password_hash: 'hash',
+                password: 'hash',
                 role: 1,
             })
         ).rejects.toThrow('Email already in use');
     });
-    
+
     it('throws if phone is already in use', async () => {
         await service.create({
             first_name: 'Another',
             last_name: 'Dup1',
             phone: '0612345678',
-            password_hash: 'hash',
+            password: 'hash',
             role: 1,
         });
         await expect(
@@ -69,17 +81,17 @@ describe('UserService - unit tests with InMemory repository', () => {
                 first_name: 'Another',
                 last_name: 'Dup2',
                 phone: '0612345678',
-                password_hash: 'hash',
+                password: 'hash',
                 role: 1,
             })
         ).rejects.toThrow('Phone already in use');
-    });    
+    });
 
     it('updates a user', async () => {
         const user = await service.create({
             first_name: 'Old',
             last_name: 'Name',
-            password_hash: 'hash',
+            password: 'hash',
             role: 1,
         });
 
@@ -95,7 +107,7 @@ describe('UserService - unit tests with InMemory repository', () => {
         const user = await service.create({
             first_name: 'To',
             last_name: 'Delete',
-            password_hash: 'hash',
+            password: 'hash',
             role: 1,
         });
 
@@ -107,10 +119,31 @@ describe('UserService - unit tests with InMemory repository', () => {
     });
 
     it('returns all users', async () => {
-        await service.create({ last_name: 'A', password_hash: 'h', role: 1 });
-        await service.create({ last_name: 'B', password_hash: 'h', role: 1 });
+        await service.create({ last_name: 'A', password: 'h', role: 1 });
+        await service.create({ last_name: 'B', password: 'h', role: 1 });
 
         const all = await service.findAll();
         expect(all.length).toBe(2);
+    });
+
+    it('logs in successfully with email and correct password', async () => {
+        // Création du user
+        const user = await service.create({
+            first_name: 'Leo',
+            last_name: 'Login',
+            email: 'leo@login.com',
+            phone: '0700112233',
+            password: 's3curePassword', // ce sera hashé par le service (mocké)
+            role: 1,
+        });
+
+        // Test login (email + password)
+        const loggedbyMail = await service.login('leo@login.com', 's3curePassword');
+        expect(loggedbyMail.email).toBe('leo@login.com');
+        expect(loggedbyMail.last_name).toBe('Login');
+
+        const loggedbyPhone = await service.login('0700112233', 's3curePassword');
+        expect(loggedbyPhone.phone).toBe('0700112233');
+        expect(loggedbyPhone.last_name).toBe('Login');
     });
 });

@@ -16,7 +16,7 @@ export class PrismaUserRepository implements IUserRepository {
   }
 
   async findByPhone(phone: string): Promise<User | null> {
-    return prisma.users.findUnique({ where: { phone: phone } });
+    return prisma.users.findUnique({ where: { phone } });
   }
 
   async findAll(): Promise<User[]> {

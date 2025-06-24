@@ -6,6 +6,8 @@ import { randomUUID } from 'crypto';
 import bcrypt from 'bcrypt';
 const SALT_ROUNDS = 10;
 
+const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
+
 export class UserService {
   constructor(private userRepo: IUserRepository) { }
 
@@ -28,19 +30,20 @@ export class UserService {
     }
     // Phone uniqueness check
     if (data.phone) {
-      console.log('Phone uniqueness check');
       const existingByPhone = await this.userRepo.findByPhone?.(data.phone);
-      console.log("all users: ", await this.userRepo.findAll());
-
       if (existingByPhone) {
         throw new Error('Phone already in use');
       }
     }
 
-    const hashedPassword = await this.hashPassword(data.password_hash);
+    const hashedPassword = await this.hashPassword(data.password);
 
+    const {
+      password,    // on retire le champ du DTO
+      ...safeData  // on garde le reste
+    } = data;
     const newUser: User = {
-      ...data,
+      ...safeData,
       password_hash: hashedPassword,
       user_id: randomUUID(),
       created_at: new Date(),
@@ -92,18 +95,21 @@ export class UserService {
   async login(identifier: string, password: string): Promise<User> {
     // Detect mail format
     let user: User | null = null;
+    if (DEBUG_MODE) console.log("identifier: ", identifier);
+    if (DEBUG_MODE) console.log("password: ", password);
+
     if (identifier.includes('@')) {
       user = await this.userRepo.findByEmail?.(identifier) ?? null;
     } else {
       user = await this.userRepo.findByPhone?.(identifier) ?? null;
     }
 
+    if (DEBUG_MODE) console.log("user password_hash: ", user?.password_hash)
+
     if (!user) throw new Error('Invalid credentials');
 
     const isMatch = await this.validatePassword(password, user.password_hash);
     if (!isMatch) throw new Error('Invalid credentials');
-
-    delete (user as any).password_hash;
 
     return user;
   }
