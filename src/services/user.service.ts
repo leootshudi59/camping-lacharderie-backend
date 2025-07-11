@@ -4,6 +4,9 @@ import { UpdateUserDto } from '../dtos/update-user.dto';
 import { users as User } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+dotenv.config();
+
 const SALT_ROUNDS = 10;
 
 const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
@@ -52,6 +55,7 @@ export class UserService {
   }
 
   findAll() {
+    if (DEBUG_MODE) console.log("findAll");
     return this.userRepo.findAll();
   }
 
