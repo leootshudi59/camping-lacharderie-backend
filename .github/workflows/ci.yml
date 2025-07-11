@@ -2,9 +2,9 @@ name: CI - Vitest
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, 'feature/*']
   pull_request:
-    branches: [main, dev]
+    branches: [main, dev, 'feature/*']
 
 jobs:
   test:
@@ -27,3 +27,20 @@ jobs:
 
     - name: 🧪 Run unit tests with Vitest
       run: npx vitest run
+    
+    # 🟦 TESTS D'INTÉGRATION : uniquement sur dev
+    - name: 🏗️ Build app
+      if: github.ref == 'refs/heads/dev'
+      run: npm run build
+
+    - name: 🚀 Start API server (dev only)
+      if: github.ref == 'refs/heads/dev'
+      run: |
+        npm run start &
+        sleep 8
+
+    - name: 🧪 Run integration tests with Newman (dev only)
+      if: github.ref == 'refs/heads/dev'
+      run: |
+        npm install -g newman
+        newman run src/__tests__/integration/users.integration.postman_collection.json

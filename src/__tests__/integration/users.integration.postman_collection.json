@@ -97,7 +97,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0622334455\",\n  \"password_hash\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0622334455\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -144,7 +144,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester2@example.com\",\n  \"phone\": \"0611223344\",\n  \"password_hash\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester2@example.com\",\n  \"phone\": \"0611223344\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -313,7 +313,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"last_name\": \"Updated\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223344\",\n  \"password_hash\": \"s3curePassword4567\",\n  \"role\": 0,\n  \"locale\": \"en\"\n}",
+					"raw": "{\n  \"last_name\": \"Updated\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223344\",\n  \"password\": \"s3curePassword4567\",\n  \"role\": 0,\n  \"locale\": \"en\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

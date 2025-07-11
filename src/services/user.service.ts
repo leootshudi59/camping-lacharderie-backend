@@ -25,6 +25,7 @@ export class UserService {
   async create(data: CreateUserDto): Promise<User> {
     // Email uniqueness check
     if (data.email) {
+      console.log("error doublon")
       const existingByEmail = await this.userRepo.findByEmail?.(data.email);
 
       if (existingByEmail) {
@@ -33,6 +34,7 @@ export class UserService {
     }
     // Phone uniqueness check
     if (data.phone) {
+      console.log("error doublon")
       const existingByPhone = await this.userRepo.findByPhone?.(data.phone);
       if (existingByPhone) {
         throw new Error('Phone already in use');
