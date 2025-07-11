@@ -5,6 +5,7 @@ import { users as User } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
+import { Role } from '../constants/roles';
 dotenv.config();
 
 const SALT_ROUNDS = 10;
@@ -25,7 +26,6 @@ export class UserService {
   async create(data: CreateUserDto): Promise<User> {
     // Email uniqueness check
     if (data.email) {
-      console.log("error doublon")
       const existingByEmail = await this.userRepo.findByEmail?.(data.email);
 
       if (existingByEmail) {
@@ -34,7 +34,6 @@ export class UserService {
     }
     // Phone uniqueness check
     if (data.phone) {
-      console.log("error doublon")
       const existingByPhone = await this.userRepo.findByPhone?.(data.phone);
       if (existingByPhone) {
         throw new Error('Phone already in use');
@@ -119,4 +118,13 @@ export class UserService {
 
     return user;
   }
+
+  isAdmin(user: User): boolean {
+    return user.role === Role.Admin;
+  }
+
+  hasRole(user: User, role: Role): boolean {
+    return user.role === role;
+  }
+
 }
