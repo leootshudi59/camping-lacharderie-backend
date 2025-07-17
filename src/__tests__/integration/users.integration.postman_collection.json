@@ -718,7 +718,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{jwt}}",
+						"value": "Bearer {{jwt_admin}}",
 						"type": "text"
 					}
 				],
