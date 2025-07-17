@@ -1,9 +1,12 @@
-// src/index.ts
+import dotenv from 'dotenv';
 import express from 'express';
-import userRoutes from './routes/user.routes';
-
 import cors from 'cors'; // Autorise CORS pour le frontend
 import helmet from 'helmet'; // Sécurité HTTP
+
+import { authenticateJWT } from './middlewares/authenticateJWT';
+import userRoutes from './routes/user.routes';
+import { createUser, loginUser } from './controllers/user.controller';
+dotenv.config();
 
 const app = express();
 
@@ -15,7 +18,9 @@ app.use(helmet()); // Headers de sécurité
 
 
 // ----------- Routes -----------
-app.use('/api/users', userRoutes);
+app.post('/api/users/login', loginUser);
+app.post('/api/users', createUser);
+app.use('/api/users', authenticateJWT, userRoutes);
 
 // ----------- 404 Handler -----------
 app.use((_req, res, _next) => {

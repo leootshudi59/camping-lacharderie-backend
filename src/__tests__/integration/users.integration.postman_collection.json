@@ -10,7 +10,7 @@
 			"name": "CREATE",
 			"item": [
 				{
-					"name": "Create First User",
+					"name": "Create First Admin User",
 					"event": [
 						{
 							"listen": "test",
@@ -50,7 +50,60 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223344\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Admin\",\n  \"email\": \"admin@example.com\",\n  \"phone\": \"0611223344\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/users/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create First User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Body has a user_id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.user_id).to.exist;",
+									"    pm.environment.set(\"user_id\", jsonData.user_id);",
+									"});",
+									"",
+									"// Stocker l'id du user pour la suite des tests (GET/PUT/DELETE)",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"user_id\", jsonData.user_id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Camptester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223345\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 0,\n  \"locale\": \"fr\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -97,7 +150,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0622334455\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0622334455\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 0,\n  \"locale\": \"fr\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -144,7 +197,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester2@example.com\",\n  \"phone\": \"0611223344\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Tester\",\n  \"email\": \"leo.tester2@example.com\",\n  \"phone\": \"0611223345\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 0,\n  \"locale\": \"fr\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -185,7 +238,11 @@
 									"  var json = pm.response.json();",
 									"  pm.expect(json).to.have.property('email');",
 									"  pm.expect(json).to.not.have.property('password_hash');",
-									"});"
+									"});",
+									"var json = pm.response.json();",
+									"pm.environment.set('jwt', json.token);",
+									"var json = pm.response.json();",
+									"pm.environment.set('user_id', json.user_id);"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -194,10 +251,16 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"identifier\": \"leo.tester@example.com\",\n  \"password\": \"s3curePassword1234\"\n}",
+							"raw": "{\n  \"identifier\": \"admin@example.com\",\n  \"password\": \"s3curePassword1234\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -270,9 +333,27 @@
 		},
 		{
 			"name": "Get User",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "localhost:8000/api/users/{{user_id}}",
 					"host": [
@@ -300,8 +381,18 @@
 							"});",
 							"pm.test(\"Last name is Updated\", function () {",
 							"  var jsonData = pm.response.json();",
-							"  pm.expect(jsonData.last_name).to.eql(\"Updated\");",
+							"  pm.expect(jsonData.last_name).to.eql(\"Admin Updated\");",
 							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -310,10 +401,16 @@
 			],
 			"request": {
 				"method": "PUT",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"last_name\": \"Updated\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223344\",\n  \"password\": \"s3curePassword4567\",\n  \"role\": 0,\n  \"locale\": \"en\"\n}",
+					"raw": "{\n  \"last_name\": \"Admin Updated\",\n  \"email\": \"admin@example.com\",\n  \"phone\": \"0611223344\",\n  \"password\": \"s3curePassword4567\",\n  \"role\": 1,\n  \"locale\": \"en\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -379,6 +476,34 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"// Ajoute automatiquement le header Authorization si un token est présent",
+					"if (pm.environment.get(\"jwt\")) {",
+					"    pm.request.headers.upsert({",
+					"        key: \"Authorization\",",
+					"        value: \"Bearer \" + pm.environment.get(\"jwt\"),",
+					"    });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }

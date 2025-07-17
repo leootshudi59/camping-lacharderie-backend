@@ -119,6 +119,10 @@ export class UserService {
     return user;
   }
 
+  async changeRole(userId: string, role: Role) {
+    return this.userRepo.update({ user_id: userId, role });
+  }
+
   isAdmin(user: User): boolean {
     return user.role === Role.Admin;
   }
