@@ -47,4 +47,5 @@ jobs:
       if: github.ref == 'refs/heads/dev'
       run: |
         npm install -g newman
-        newman run src/__tests__/integration/users.integration.postman_collection.json
+        newman run src/__tests__/integration/users.integration.postman_collection.json \
+          -e src/__tests__/integration/dev.postman_environment.json
