@@ -36,8 +36,8 @@ jobs:
     - name: 🚀 Start API server (dev only)
       if: github.ref == 'refs/heads/dev'
       run: |
-        npm run start &
-        sleep 8
+        npm run dev &
+        sleep 6
 
     - name: ⏳ Wait for API to be ready
       if: github.ref == 'refs/heads/dev'
