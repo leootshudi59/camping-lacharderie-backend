@@ -29,6 +29,9 @@ jobs:
       run: npx vitest run
     
     # 🟦 TESTS D'INTÉGRATION : uniquement sur dev
+    - name: Set JWT_SECRET environment variables from GitHub secrets
+      run: echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV && echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> $GITHUB_ENV
+    
     - name: 🏗️ Build app
       if: github.ref == 'refs/heads/dev'
       run: npm run build
