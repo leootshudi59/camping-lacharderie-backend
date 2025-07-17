@@ -39,9 +39,9 @@ jobs:
         npm run dev &
         sleep 6
 
-    - name: ⏳ Wait for API to be ready
-      if: github.ref == 'refs/heads/dev'
-      run: npx wait-on http://localhost:8000/api/users
+    # - name: ⏳ Wait for API to be ready
+    #   if: github.ref == 'refs/heads/dev'
+    #   run: npx wait-on http://localhost:8000/api/users
 
     - name: 🧪 Run integration tests with Newman (dev only)
       if: github.ref == 'refs/heads/dev'
