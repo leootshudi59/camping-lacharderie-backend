@@ -240,7 +240,65 @@
 									"  pm.expect(json).to.not.have.property('password_hash');",
 									"});",
 									"var json = pm.response.json();",
-									"pm.environment.set('jwt', json.token);",
+									"pm.environment.set('jwt_user', json.token);",
+									"var json = pm.response.json();",
+									"pm.environment.set('user_id', json.user_id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identifier\": \"leo.tester@example.com\",\n  \"password\": \"s3curePassword1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/users/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Log admin with good password Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"User returned without password_hash\", function () {",
+									"  var json = pm.response.json();",
+									"  pm.expect(json).to.have.property('email');",
+									"  pm.expect(json).to.not.have.property('password_hash');",
+									"});",
+									"var json = pm.response.json();",
+									"pm.environment.set('jwt_admin', json.token);",
 									"var json = pm.response.json();",
 									"pm.environment.set('user_id', json.user_id);"
 								],
@@ -324,6 +382,262 @@
 								"api",
 								"users",
 								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ADMIN ONLY",
+			"item": [
+				{
+					"name": "Get All Users (by a not admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403 (non-admin)\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"pm.test(\"Forbidden error message (non-admin)\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.error).to.include(\"Forbidden\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8000/api/users/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 (admin)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Body is array of users (admin)\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(Array.isArray(json)).to.be.true;",
+									"    pm.expect(json.length).to.be.greaterThan(0); // ou >= 0 si la table peut être vide",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8000/api/users/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 (admin)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"User with correct user is returned (admin)\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json).to.have.property('last_name', 'Admin');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/users/email/admin@example.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"email",
+								"admin@example.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by email (by a user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403 (non-admin)\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"pm.test(\"Forbidden error message (non-admin)\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.error).to.include(\"Forbidden\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/users/email/admin@example.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"email",
+								"admin@example.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by phone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 (admin)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"User with correct phone is returned (admin)\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json).to.have.property('last_name', 'Admin');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/users/phone/0611223344",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"phone",
+								"0611223344"
 							]
 						}
 					},
