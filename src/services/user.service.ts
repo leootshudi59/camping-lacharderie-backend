@@ -56,7 +56,6 @@ export class UserService {
   }
 
   findAll() {
-    if (DEBUG_MODE) console.log("findAll");
     return this.userRepo.findAll();
   }
 

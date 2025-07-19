@@ -23,12 +23,9 @@
 									"pm.test(\"Body has a user_id\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.user_id).to.exist;",
-									"    pm.environment.set(\"user_id\", jsonData.user_id);",
-									"});",
-									"",
-									"// Stocker l'id du user pour la suite des tests (GET/PUT/DELETE)",
-									"var jsonData = pm.response.json();",
-									"pm.environment.set(\"user_id\", jsonData.user_id);"
+									"    // Stocker l'id du user pour la suite des tests (GET/PUT/DELETE)",
+									"    pm.environment.set(\"user_admin_id\", jsonData.user_id);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -86,12 +83,12 @@
 									"pm.test(\"Body has a user_id\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.user_id).to.exist;",
-									"    pm.environment.set(\"user_id\", jsonData.user_id);",
+									"    pm.environment.set(\"user1_id\", jsonData.user_id);",
 									"});",
 									"",
 									"// Stocker l'id du user pour la suite des tests (GET/PUT/DELETE)",
 									"var jsonData = pm.response.json();",
-									"pm.environment.set(\"user_id\", jsonData.user_id);"
+									"pm.environment.set(\"user1_id\", jsonData.user_id);"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -103,7 +100,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Camptester\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223345\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 0,\n  \"locale\": \"fr\"\n}",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Camptester1\",\n  \"email\": \"leo.tester@example.com\",\n  \"phone\": \"0611223345\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 0,\n  \"locale\": \"fr\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -218,6 +215,59 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Create Second User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Body has a user_id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.user_id).to.exist;",
+									"    pm.environment.set(\"user2_id\", jsonData.user_id);",
+									"});",
+									"",
+									"// Stocker l'id du user pour la suite des tests (GET/PUT/DELETE)",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"user2_id\", jsonData.user_id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Leo\",\n  \"last_name\": \"Camptester2\",\n  \"email\": \"leo.tester2@example.com\",\n  \"phone\": \"0611223346\",\n  \"password\": \"s3curePassword1234\",\n  \"role\": 0,\n  \"locale\": \"fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/users/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -242,7 +292,7 @@
 									"var json = pm.response.json();",
 									"pm.environment.set('jwt_user', json.token);",
 									"var json = pm.response.json();",
-									"pm.environment.set('user_id', json.user_id);"
+									"pm.environment.set('user1_id', json.user_id);"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -300,7 +350,7 @@
 									"var json = pm.response.json();",
 									"pm.environment.set('jwt_admin', json.token);",
 									"var json = pm.response.json();",
-									"pm.environment.set('user_id', json.user_id);"
+									"pm.environment.set('user_admin_id', json.user_id);"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -642,11 +692,175 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Delete any User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204 (admin delete)\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/users/{{user1_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"{{user1_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		},
 		{
-			"name": "Get User",
+			"name": "DELETE",
+			"item": [
+				{
+					"name": "Delete own User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204 (self delete)\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/users/{{user1_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"{{user1_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Should fail - Delete another User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403 (user can't delete another)\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"pm.test(\"Forbidden error message\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json.error).to.include(\"Forbidden\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/users/{{user2_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"{{user2_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Own User",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -655,7 +869,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{jwt}}",
+						"value": "Bearer {{jwt_user}}",
 						"type": "text"
 					}
 				],
@@ -669,7 +883,7 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8000/api/users/{{user_id}}",
+					"raw": "localhost:8000/api/users/{{user1_id}}",
 					"host": [
 						"localhost"
 					],
@@ -677,7 +891,7 @@
 					"path": [
 						"api",
 						"users",
-						"{{user_id}}"
+						"{{user1_id}}"
 					]
 				}
 			},
@@ -732,7 +946,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8000/api/users/{{user_id}}",
+					"raw": "http://localhost:8000/api/users/{{user_admin_id}}",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -741,57 +955,7 @@
 					"path": [
 						"api",
 						"users",
-						"{{user_id}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete User",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 204\", function () {",
-							"    pm.response.to.have.status(204);",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{jwt_admin}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8000/api/users/{{user_id}}",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"users",
-						"{{user_id}}"
+						"{{user_admin_id}}"
 					]
 				}
 			},

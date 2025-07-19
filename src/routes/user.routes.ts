@@ -17,11 +17,11 @@ router.use(authenticateJWT);
 router.get('/',              requireAdmin, getAllUsers);
 router.get('/email/:email',  requireAdmin, getUserByEmail);
 router.get('/phone/:phone',  requireAdmin, getUserByPhone);
-router.delete('/:user_id',   requireAdmin, deleteUser);
 router.patch('/:user_id/role', requireAdmin, changeUserRole);
 
 // self or admin
 router.get('/:user_id', requireSelfOrAdmin, getUserById);
 router.put('/:user_id', requireSelfOrAdmin, updateUser);
+router.delete('/:user_id', requireSelfOrAdmin, deleteUser);
 
 export default router;
