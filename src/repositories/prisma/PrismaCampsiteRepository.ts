@@ -1,21 +1,19 @@
-import { PrismaClient, campsite } from '@prisma/client';
+import { PrismaClient, campsite as Campsite } from '@prisma/client';
 import { ICampsiteRepository } from '../interfaces/ICampsiteRepository';
-import { CreateCampsiteDto } from '../../dtos/create-campsite.dto';
-import { UpdateCampsiteDto } from '../../dtos/update-campsite.dto';
 
 const prisma = new PrismaClient();
 
 export class PrismaCampsiteRepository implements ICampsiteRepository {
-  async create(data: CreateCampsiteDto): Promise<campsite> {
+  async create(data: Campsite): Promise<Campsite> {
     return prisma.campsite.create({ data: { ...data, campsite_id: crypto.randomUUID() } });
   }
-  async findAll(): Promise<campsite[]> {
+  async findAll(): Promise<Campsite[]> {
     return prisma.campsite.findMany();
   }
-  async findById(id: string): Promise<campsite | null> {
+  async findById(id: string): Promise<Campsite | null> {
     return prisma.campsite.findUnique({ where: { campsite_id: id } });
   }
-  async update(data: UpdateCampsiteDto): Promise<campsite> {
+  async update(data: Partial<Campsite> & { campsite_id: string }): Promise<Campsite> {
     return prisma.campsite.update({
       where: { campsite_id: data.campsite_id },
       data,
