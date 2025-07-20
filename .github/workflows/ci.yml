@@ -59,7 +59,7 @@ jobs:
 
   integration:
     needs: unit              # Lance seulement si unit OK
-    if: github.ref == 'refs/heads/dev'
+    # if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
