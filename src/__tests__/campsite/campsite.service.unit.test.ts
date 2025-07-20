@@ -15,13 +15,13 @@ describe('CampsiteService - unit tests with InMemory repository', () => {
       name: 'Chalet Zen',
       type: 'chalet',
       description: 'Un super chalet zen',
-      status: 'open',
+      status: 'available',
     });
 
     expect(created.campsite_id).toBeDefined();
     expect(typeof created.campsite_id).toBe('string');
     expect(created.name).toBe('Chalet Zen');
-    expect(created.status).toBe('open');
+    expect(created.status).toBe('available');
   });
 
   it('finds a campsite by id', async () => {
@@ -29,12 +29,12 @@ describe('CampsiteService - unit tests with InMemory repository', () => {
       name: 'Tipi',
       type: 'tipi',
       description: 'Tipi familial',
-      status: 'closed',
+      status: 'busy',
     });
 
     const found = await service.findById(campsite.campsite_id);
     expect(found?.name).toBe('Tipi');
-    expect(found?.status).toBe('closed');
+    expect(found?.status).toBe('busy');
   });
 
   it('updates a campsite', async () => {
@@ -42,17 +42,17 @@ describe('CampsiteService - unit tests with InMemory repository', () => {
       name: 'Bungalow',
       type: 'bungalow',
       description: 'Bungalow 2 pers.',
-      status: 'open',
+      status: 'available',
     });
 
     const updated = await service.update({
       campsite_id: campsite.campsite_id,
       name: 'Bungalow Luxe',
-      status: 'closed',
+      status: 'busy',
     });
 
     expect(updated.name).toBe('Bungalow Luxe');
-    expect(updated.status).toBe('closed');
+    expect(updated.status).toBe('busy');
   });
 
   it('deletes a campsite', async () => {
@@ -60,7 +60,7 @@ describe('CampsiteService - unit tests with InMemory repository', () => {
       name: 'Tente Lodge',
       type: 'tente',
       description: 'Lodge canvas',
-      status: 'open',
+      status: 'available',
     });
 
     await service.delete(campsite.campsite_id);
@@ -70,8 +70,8 @@ describe('CampsiteService - unit tests with InMemory repository', () => {
   });
 
   it('returns all campsites', async () => {
-    await service.create({ name: 'A', type: 'chalet', description: '', status: 'open' });
-    await service.create({ name: 'B', type: 'tipi', description: '', status: 'open' });
+    await service.create({ name: 'A', type: 'chalet', description: '', status: 'available' });
+    await service.create({ name: 'B', type: 'tipi', description: '', status: 'available' });
 
     const all = await service.findAll();
     expect(all.length).toBe(2);
