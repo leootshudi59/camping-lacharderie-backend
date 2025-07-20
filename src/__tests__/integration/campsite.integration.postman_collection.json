@@ -1,0 +1,390 @@
+{
+	"info": {
+		"_postman_id": "cca34727-642b-4bd1-8828-c2b6adb195b0",
+		"name": "CampsiteIntegration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20591382"
+	},
+	"item": [
+		{
+			"name": "CREATE",
+			"item": [
+				{
+					"name": "Create first item available",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", () => pm.response.to.have.status(201));",
+									"",
+									"const id = pm.response.json().campsite_id;",
+									"pm.environment.set(\"campsite1_id\", id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Emplacement 13 - Châlet\",\n  \"type\": \"chalet\",\n  \"description\": \"Un super chalet très zen\",\n  \"status\": \"available\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/campsites/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"campsites",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create second item no desc",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {",
+									"  pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const id = pm.response.json().campsite_id;",
+									"pm.environment.set(\"campsite2_id\", id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Emplacement 7 - Mobil home 4 personnes \",\n  \"type\": \"mobilhome\",\n  \"status\": \"busy\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/campsites/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"campsites",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"/**",
+							" * Pre-request script exécuté avant chaque requête du dossier.",
+							" * S'il n’existe pas de JWT admin, on fait un login et on le stocke.",
+							" */",
+							"if (!pm.environment.get(\"jwt_admin\")) {",
+							"  console.log(\"🔐 No jwt_admin found → performing admin login…\");",
+							"",
+							"  const loginReq = {",
+							"    url: \"localhost:8000/api/users/login\",",
+							"    method: \"POST\",",
+							"    header: { \"Content-Type\": \"application/json\" },",
+							"    body: {",
+							"      mode: \"raw\",",
+							"      raw: JSON.stringify({",
+							"        identifier: \"admin@example.com\",",
+							"        password:   \"s3curePassword1234\"",
+							"      })",
+							"    }",
+							"  };",
+							"",
+							"  /**",
+							"   * pm.sendRequest est ASYNCHRONE.",
+							"   * Tant que le callback n'est pas terminé, Postman met la requête courante “en pause”.",
+							"   * Une fois le token stocké, la requête courante reprendra avec l’Authorization dans ses headers.",
+							"   */",
+							"  pm.sendRequest(loginReq, (err, res) => {",
+							"    if (err) {",
+							"      console.error(\"❌ Admin login failed:\", err);",
+							"      // On peut interrompre la collection si nécessaire",
+							"      throw new Error(\"Admin login failed\");",
+							"    }",
+							"",
+							"    const token = res.json().token;",
+							"    if (!token) {",
+							"      throw new Error(\"No token in login response\");",
+							"    }",
+							"",
+							"    pm.environment.set(\"jwt_admin\", token);",
+							"    console.log(\"✅ jwt_admin saved to environment\");",
+							"  });",
+							"}"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "GET",
+			"item": [
+				{
+					"name": "Get all Campsites",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Has at least 1 campsite\", () => {",
+									"  const arr = pm.response.json();",
+									"  pm.expect(arr.length).to.be.above(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8000/api/campsites/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"campsites",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Campsite by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 200 OK\", () => pm.response.to.have.status(200));",
+									"pm.test(\"Nom correct\", () => {",
+									"    pm.expect(pm.response.json().name).to.eql(\"Emplacement 13 - Châlet\");   ",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {}
+						},
+						"url": {
+							"raw": "localhost:8000/api/campsites/{{campsite1_id}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"campsites",
+								"{{campsite1_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update Campsite",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"  pm.response.to.have.status(200);",
+							"})",
+							"pm.test(\"Name updated\", function () {",
+							"  pm.expect(pm.response.json().name).to.eql(\"Emplacement 11 - Châlet\");",
+							"});",
+							"pm.test(\"Status updated\", function () {",
+							"  pm.expect(pm.response.json().status).to.eql(\"busy\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Emplacement 11 - Châlet\",\n  \"status\": \"busy\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/campsites/{{campsite1_id}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"campsites",
+						"{{campsite1_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204 No Content\", function () { ",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/campsites/{{campsite1_id}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"campsites",
+						"{{campsite1_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
