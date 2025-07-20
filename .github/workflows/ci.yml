@@ -49,8 +49,8 @@ jobs:
         run: npm ci
 
       # 🟦 TESTS D'INTÉGRATION : uniquement sur dev
-      - name: Set JWT_SECRET environment variables from GitHub secrets
-        run: echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV && echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> $GITHUB_ENV
+      - name: 🌍 Set environment variables from GitHub secrets
+        run: echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> $GITHUB_ENV && echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV && echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> $GITHUB_ENV
 
       - name: 🏗️ Build app
         if: github.ref == 'refs/heads/dev'
@@ -61,7 +61,7 @@ jobs:
         run: |
           npm run dev &
           sleep 4
-          
+
       # - name: ⏳ Wait for API to be ready
       #   if: github.ref == 'refs/heads/dev'
       #   run: npx wait-on http://localhost:8000/api/users
