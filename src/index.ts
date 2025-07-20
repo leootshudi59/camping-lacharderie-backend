@@ -5,6 +5,7 @@ import helmet from 'helmet'; // Sécurité HTTP
 
 import { authenticateJWT } from './middlewares/authenticateJWT';
 import userRoutes from './routes/user.routes';
+import campsiteRoutes from './routes/campsite.routes';
 import { createUser, loginUser } from './controllers/user.controller';
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(helmet()); // Headers de sécurité
 app.post('/api/users/login', loginUser);
 app.post('/api/users', createUser);
 app.use('/api/users', authenticateJWT, userRoutes);
+app.use('/api/campsites', authenticateJWT, campsiteRoutes);
 
 // ----------- 404 Handler -----------
 app.use((_req, res, _next) => {
