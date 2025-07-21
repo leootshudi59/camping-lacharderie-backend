@@ -19,12 +19,14 @@ model bookings {
   end_date                                       DateTime      @db.Timestamptz(6)
   res_name                                       String        @db.VarChar(50)
   inventory_id                                   String?       @db.Uuid
+  delete_date                                    DateTime?     @db.Timestamptz(6)
   campsite                                       campsite?     @relation(fields: [campsite_id], references: [campsite_id], onDelete: Cascade, onUpdate: NoAction)
   users                                          users?        @relation(fields: [user_id], references: [user_id], onUpdate: NoAction)
   inventories_bookings_inventory_idToinventories inventories?  @relation("bookings_inventory_idToinventories", fields: [inventory_id], references: [inventory_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_bookings_inventory")
   inventories_inventories_booking_idTobookings   inventories[] @relation("inventories_booking_idTobookings")
   issues                                         issues[]
   orders                                         orders[]
+
 
   @@schema("campingdb")
 }
