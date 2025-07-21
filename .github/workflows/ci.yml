@@ -34,7 +34,7 @@ jobs:
 
   integration:
     needs: unit              # Lance seulement si unit OK
-    # if: github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
@@ -57,7 +57,7 @@ jobs:
         run: npm run build
 
       - name: 🚀 Start API server (dev only)
-        # if: github.ref == 'refs/heads/dev'
+        : github.ref == 'refs/heads/dev'
         run: |
           npm run dev &
           sleep 4

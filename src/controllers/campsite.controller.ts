@@ -11,7 +11,10 @@ const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
 
 export const getAllCampsites = async (_: Request, res: Response) => {
   try {
-    if (DEBUG_MODE) console.log("\n=====  getAllCampsites  =====");
+    if (DEBUG_MODE) {
+      console.log("\n=====  [ADMIN ONLY] getAllCampsites  =====");
+    }
+
     const campsites = await service.findAll();
     res.status(200).json(campsites);
   } catch (err: any) {
@@ -34,8 +37,21 @@ export const getCampsiteById = async (req: Request, res: Response): Promise<any>
 
 export const createCampsite = async (req: Request, res: Response) => {
   try {
-    if (DEBUG_MODE) console.log("\n=====  createCampsite  =====", req.body);
-    const dto = CreateCampsiteSchema.parse(req.body);
+    if (DEBUG_MODE) {
+      console.log("\n=====  createCampsite  =====", req.body);
+    }
+    let reqBody = {
+      name: req.body.name,
+      type: req.body.type,
+      description: req.body.description,
+      status: req.body.status,
+      image: undefined
+    }
+    if (req.body.image !== '') {
+      reqBody = { ...reqBody, image: req.body.image}
+    }
+    
+    const dto = CreateCampsiteSchema.parse(reqBody);
     const campsite = await service.create(dto);
     res.status(201).json(campsite);
   } catch (err: any) {
@@ -46,7 +62,10 @@ export const createCampsite = async (req: Request, res: Response) => {
 
 export const updateCampsite = async (req: Request, res: Response) => {
   try {
-    if (DEBUG_MODE) console.log("\n=====  updateCampsite  =====", req.params.campsite_id, req.body);
+    if (DEBUG_MODE) {
+      console.log("\n=====  updateCampsite  =====", req.params.campsite_id, req.body);
+    }
+    
     const dto = UpdateCampsiteSchema.parse({ ...req.body, campsite_id: req.params.campsite_id });
     const campsite = await service.update(dto);
     res.status(200).json(campsite);
@@ -58,7 +77,11 @@ export const updateCampsite = async (req: Request, res: Response) => {
 
 export const deleteCampsite = async (req: Request, res: Response) => {
   try {
-    if (DEBUG_MODE) console.log("\n=====  deleteCampsite  =====", req.params.campsite_id);
+    if (DEBUG_MODE) {
+      console.log("\n=====  deleteCampsite  =====");
+      console.log("received campsite_id: " + req.params.campsite_id);
+    }
+
     await service.delete(req.params.campsite_id);
     res.status(204).send();
   } catch (err: any) {
