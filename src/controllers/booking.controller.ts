@@ -31,6 +31,10 @@ export const getBookingById = async (req: Request, res: Response): Promise<any> 
 
 export const createBooking = async (req: Request, res: Response) => {
   try {
+    if (DEBUG_MODE) {
+      console.log("\n=====  createBooking  =====");
+      console.log("received body: ", req.body);
+    }
     const dto = CreateBookingSchema.parse(req.body);
     const booking = await service.create(dto);
     res.status(201).json(booking);
@@ -42,6 +46,12 @@ export const createBooking = async (req: Request, res: Response) => {
 
 export const updateBooking = async (req: Request, res: Response) => {
   try {
+    if (DEBUG_MODE) {
+      console.log("\n=====  updateBooking  =====");
+      console.log("received booking_id: " + req.params.booking_id);
+      console.log("received body: ", req.body);
+    }
+    
     const dto = UpdateBookingSchema.parse({ ...req.body, booking_id: req.params.booking_id });
     const booking = await service.update(dto);
     res.status(200).json(booking);

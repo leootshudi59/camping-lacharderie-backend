@@ -74,7 +74,14 @@ jobs:
       - name: 🧪 Integration tests - Campsite
         run: >
           newman run src/__tests__/integration/campsite.integration.postman_collection.json
-          -e   src/__tests__/integration/dev.postman_environment.json
+          -e   src/__tests__/integration/dev.postman_environment.json \
+          --export-environment env.tmp.json
+
+
+      - name: 🧪 Integration tests - Booking
+        run: >
+          newman run src/__tests__/integration/booking.integration.postman_collection.json
+          -e   env.tmp.json
 
       - name: 🧹 Stop API server
         if: always()               # exécute même si un test échoue

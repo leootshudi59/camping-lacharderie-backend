@@ -15,10 +15,10 @@ const router = Router();
 router.use(authenticateJWT);
 router.use(requireAdmin);          // ⇢ admin-only
 
-router.get('/',              getAllBookings);
-router.get('/:booking_id',   getBookingById);
-router.post('/',             createBooking);
-router.put('/:booking_id',   updateBooking);
+router.get('/',               getAllBookings);
+router.get('/:booking_id',    getBookingById);
+router.post('/',              createBooking);
+router.put('/:booking_id',    updateBooking);
 router.delete('/:booking_id', deleteBooking);
 
 export default router;
