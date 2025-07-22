@@ -10,6 +10,8 @@ import { UpdateBookingDto } from '../../../src/dtos/update-booking.dto';
 export class InMemoryBookingRepository implements IBookingRepository {
   private store: Map<string, Booking> = new Map();
 
+  constructor(private knownCampsites: Set<string> = new Set()) {}
+
   async create(data: CreateBookingDto): Promise<Booking> {
     const booking: Booking = {
       ...data,
@@ -52,5 +54,9 @@ export class InMemoryBookingRepository implements IBookingRepository {
       b.start_date < end &&            // existing.start < newEnd
       b.end_date   > start             // existing.end   > newStart
     );
+  }
+
+  campsiteExists(id: string) {
+    return Promise.resolve(this.knownCampsites.has(id));
   }
 }

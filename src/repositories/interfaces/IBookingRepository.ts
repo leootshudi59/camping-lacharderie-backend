@@ -15,4 +15,9 @@ export interface IBookingRepository {
    * @param end 
    */
   findOverlapping(campsite_id: string, start: Date, end: Date): Promise<Booking[]>;
+  /**
+   * Checks if the campsite exists in the campsite table
+   * @param id 
+   */
+  campsiteExists(id: string): Promise<boolean>;
 }

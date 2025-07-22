@@ -23,6 +23,10 @@ export class BookingService {
             throw new Error('Either email or phone is required');
         }
 
+        if (dto.campsite_id && !(await this.bookingRepo.campsiteExists(dto.campsite_id))) {
+            throw new Error('Campsite not found');
+        }
+
         if (dto.campsite_id) {
             const overlaps = await this.bookingRepo.findOverlapping(
                 dto.campsite_id,

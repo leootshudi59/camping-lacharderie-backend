@@ -49,4 +49,9 @@ export class PrismaBookingRepository implements IBookingRepository {
       },
     });
   }
+
+  async campsiteExists(id: string) {
+    const cs = await prisma.campsite.findUnique({ where: { campsite_id: id } });
+    return !!cs;
+  }
 }

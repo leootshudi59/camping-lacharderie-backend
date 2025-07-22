@@ -5,16 +5,18 @@ import { InMemoryBookingRepository } from '../mocks/InMemoryBookingRepository';
 
 describe('BookingService - unit tests with InMemory repository', () => {
   let service: BookingService;
-  const campsiteA = randomUUID();
   const iso = (d: string) => new Date(d).toISOString();   // aide pour lisibilité
+  let campsiteIdOk: string;
 
   beforeEach(() => {
-    service = new BookingService(new InMemoryBookingRepository());
+    campsiteIdOk = randomUUID();
+    const repo = new InMemoryBookingRepository(new Set([campsiteIdOk]));    
+    service = new BookingService(repo);
   });
 
   it('creates a booking and returns it', async () => {
     const created = await service.create({
-      campsite_id: campsiteA,
+      campsite_id: campsiteIdOk,
       email: 'guest@example.com',
       start_date: iso('2025-08-01T12:00:00Z'),
       end_date:   iso('2025-08-07T10:00:00Z'),
@@ -29,7 +31,7 @@ describe('BookingService - unit tests with InMemory repository', () => {
   it('requires email OR phone', async () => {
     await expect(
       service.create({
-        campsite_id: campsiteA,
+        campsite_id: campsiteIdOk,
         start_date: iso('2025-08-10T12:00:00Z'),
         end_date:   iso('2025-08-12T10:00:00Z'),
         res_name:   'NoContact',
@@ -40,7 +42,7 @@ describe('BookingService - unit tests with InMemory repository', () => {
   it('rejects booking where end_date <= start_date', async () => {
     await expect(
       service.create({
-        campsite_id: campsiteA,
+        campsite_id: campsiteIdOk,
         email: 'bad@example.com',
         start_date: iso('2025-08-15T12:00:00Z'),
         end_date:   iso('2025-08-14T10:00:00Z'),
@@ -49,10 +51,22 @@ describe('BookingService - unit tests with InMemory repository', () => {
     ).rejects.toThrow('end_date must be after start_date');
   });
 
+  it('throws if campsite_id does not exist', async () => {
+    await expect(
+      service.create({
+        campsite_id: randomUUID(),
+        email: 'bad@example.com',
+        start_date: iso('2025-08-10T12:00:00Z'),
+        end_date:   iso('2025-08-12T10:00:00Z'),
+        res_name:   'NoCampsite',
+      })
+    ).rejects.toThrow('Campsite not found');
+  });
+
   it('rejects overlapping booking on same campsite', async () => {
     // Première réservation valide
     await service.create({
-      campsite_id: campsiteA,
+      campsite_id: campsiteIdOk,
       phone: '0700000000',
       start_date: iso('2025-09-01T12:00:00Z'),
       end_date:   iso('2025-09-05T10:00:00Z'),
@@ -62,7 +76,7 @@ describe('BookingService - unit tests with InMemory repository', () => {
     // Overlap (commence avant fin) → doit throw
     await expect(
       service.create({
-        campsite_id: campsiteA,
+        campsite_id: campsiteIdOk,
         email: 'overlap@example.com',
         start_date: iso('2025-09-04T15:00:00Z'),
         end_date:   iso('2025-09-06T10:00:00Z'),
@@ -72,7 +86,7 @@ describe('BookingService - unit tests with InMemory repository', () => {
 
     // Edge case OK : commence exactement quand l’autre se termine
     const nonOverlap = await service.create({
-      campsite_id: campsiteA,
+      campsite_id: campsiteIdOk,
       email: 'ok@example.com',
       start_date: iso('2025-09-05T10:00:00Z'), // = previous end
       end_date:   iso('2025-09-07T10:00:00Z'),
@@ -83,7 +97,7 @@ describe('BookingService - unit tests with InMemory repository', () => {
 
   it('finds a booking by id', async () => {
     const b = await service.create({
-      campsite_id: campsiteA,
+      campsite_id: campsiteIdOk,
       phone: '0711223344',
       start_date: iso('2025-10-01T12:00:00Z'),
       end_date:   iso('2025-10-03T10:00:00Z'),
@@ -96,7 +110,7 @@ describe('BookingService - unit tests with InMemory repository', () => {
 
   it('updates a booking', async () => {
     const b = await service.create({
-      campsite_id: campsiteA,
+      campsite_id: campsiteIdOk,
       email: 'update@example.com',
       start_date: iso('2025-11-01T12:00:00Z'),
       end_date:   iso('2025-11-03T10:00:00Z'),
@@ -113,7 +127,7 @@ describe('BookingService - unit tests with InMemory repository', () => {
 
   it('soft-deletes a booking', async () => {
     const b = await service.create({
-      campsite_id: campsiteA,
+      campsite_id: campsiteIdOk,
       email: 'delete@example.com',
       start_date: iso('2025-12-01T12:00:00Z'),
       end_date:   iso('2025-12-03T10:00:00Z'),
@@ -129,14 +143,14 @@ describe('BookingService - unit tests with InMemory repository', () => {
 
   it('returns all active bookings only', async () => {
     await service.create({
-      campsite_id: campsiteA,
+      campsite_id: campsiteIdOk,
       email: 'a@ex.com',
       start_date: iso('2026-01-01T12:00:00Z'),
       end_date:   iso('2026-01-03T10:00:00Z'),
       res_name:   'A',
     });
     const b = await service.create({
-      campsite_id: campsiteA,
+      campsite_id: campsiteIdOk,
       phone: '0722334455',
       start_date: iso('2026-02-01T12:00:00Z'),
       end_date:   iso('2026-02-03T10:00:00Z'),
