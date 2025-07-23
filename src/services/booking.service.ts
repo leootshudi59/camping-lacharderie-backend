@@ -1,4 +1,4 @@
-import { IBookingRepository } from '../repositories/interfaces/IBookingRepository';
+import { BookingWithCampsite, IBookingRepository } from '../repositories/interfaces/IBookingRepository';
 import { CreateBookingDto } from '../dtos/create-booking.dto';
 import { UpdateBookingDto } from '../dtos/update-booking.dto';
 import { bookings as Booking } from '@prisma/client';
@@ -38,12 +38,20 @@ export class BookingService {
         return this.bookingRepo.create(dto);
     }
 
-    findAll() {
-        return this.bookingRepo.findAll();
+    async findAll() {
+        const list = await this.bookingRepo.findAll();
+        return list.map(b => {
+          const { campsite, ...plain } = b as BookingWithCampsite & { campsite?: any };
+          return { ...plain, campsite_name: campsite?.name ?? null };
+        });
     }
 
-    findById(id: string) {
-        return this.bookingRepo.findById(id);
+    async findById(id: string) {
+        const b = await this.bookingRepo.findById(id);
+        if (!b) return null;
+
+        const { campsite, ...plain } = b as BookingWithCampsite & { campsite?: any };
+        return { ...plain, campsite_name: campsite?.name ?? null };
     }
 
     update(dto: UpdateBookingDto) {

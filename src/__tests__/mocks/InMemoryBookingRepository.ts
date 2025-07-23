@@ -1,16 +1,18 @@
 import { randomUUID } from 'crypto';
 import { bookings as Booking } from '@prisma/client';
-import { IBookingRepository } from '../../../src/repositories/interfaces/IBookingRepository';
+import { BookingWithCampsite, IBookingRepository } from '../../../src/repositories/interfaces/IBookingRepository';
 import { CreateBookingDto } from '../../../src/dtos/create-booking.dto';
 import { UpdateBookingDto } from '../../../src/dtos/update-booking.dto';
 
 /**
- * Dépôt en mémoire – idéal pour les tests unitaires.
+ * key = campsite_id, value = campsite_name
  */
 export class InMemoryBookingRepository implements IBookingRepository {
   private store: Map<string, Booking> = new Map();
 
-  constructor(private knownCampsites: Set<string> = new Set()) {}
+  constructor(private campsites: Map<string, string> = new Map()) {}
+
+  /* -------- CRUD -------- */
 
   async create(data: CreateBookingDto): Promise<Booking> {
     const booking: Booking = {
@@ -24,12 +26,20 @@ export class InMemoryBookingRepository implements IBookingRepository {
     return booking;
   }
 
-  async findAll(): Promise<Booking[]> {
-    return [...this.store.values()].filter(b => !b.delete_date);
+  private attachCampsite(b: Booking): BookingWithCampsite {
+    const name = b.campsite_id ? this.campsites.get(b.campsite_id) ?? null : null;
+    return { ...b, campsite: name ? { name } : null };
   }
 
-  async findById(id: string): Promise<Booking | null> {
-    return this.store.get(id) ?? null;
+  async findAll(): Promise<BookingWithCampsite[]> {
+    return [...this.store.values()]
+      .filter(b => !b.delete_date)
+      .map(b => this.attachCampsite(b));
+  }
+
+  async findById(id: string): Promise<BookingWithCampsite | null> {
+    const b = this.store.get(id);
+    return b ? this.attachCampsite(b) : null;
   }
 
   async update(data: UpdateBookingDto): Promise<Booking> {
@@ -46,17 +56,18 @@ export class InMemoryBookingRepository implements IBookingRepository {
     return updated;
   }
 
-  /** Retourne les réservations qui se chevauchent (même locatif, non supprimées) */
+  /* -------- Helpers -------- */
+
   async findOverlapping(campsite_id: string, start: Date, end: Date): Promise<Booking[]> {
     return [...this.store.values()].filter(b =>
       b.campsite_id === campsite_id &&
       !b.delete_date &&
-      b.start_date < end &&            // existing.start < newEnd
-      b.end_date   > start             // existing.end   > newStart
+      b.start_date < end &&
+      b.end_date   > start
     );
   }
 
   campsiteExists(id: string) {
-    return Promise.resolve(this.knownCampsites.has(id));
+    return Promise.resolve(this.campsites.has(id));
   }
 }

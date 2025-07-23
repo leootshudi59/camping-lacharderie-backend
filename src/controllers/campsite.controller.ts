@@ -25,7 +25,11 @@ export const getAllCampsites = async (_: Request, res: Response) => {
 
 export const getCampsiteById = async (req: Request, res: Response): Promise<any> => {
   try {
-    if (DEBUG_MODE) console.log("\n=====  getCampsiteById  =====", req.params.campsite_id);
+    if (DEBUG_MODE) {
+      console.log("\n=====  getCampsiteById  =====");
+      console.log("received campsite_id: " + req.params.campsite_id);
+    }
+    
     const campsite = await service.findById(req.params.campsite_id);
     if (!campsite) return res.status(404).json({ message: 'Campsite not found' });
     res.status(200).json(campsite);

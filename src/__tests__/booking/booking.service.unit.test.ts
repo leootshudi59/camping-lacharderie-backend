@@ -10,7 +10,7 @@ describe('BookingService - unit tests with InMemory repository', () => {
 
   beforeEach(() => {
     campsiteIdOk = randomUUID();
-    const repo = new InMemoryBookingRepository(new Set([campsiteIdOk]));    
+    const repo = new InMemoryBookingRepository(new Map([[campsiteIdOk, 'Campsite 1']]));    
     service = new BookingService(repo);
   });
 

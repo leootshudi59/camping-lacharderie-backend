@@ -1,11 +1,13 @@
-import { bookings as Booking } from '@prisma/client';
+import { bookings as Booking, campsite } from '@prisma/client';
 import { CreateBookingDto } from '../../dtos/create-booking.dto';
 import { UpdateBookingDto } from '../../dtos/update-booking.dto';
 
+export type BookingWithCampsite = Booking & { campsite: Pick<campsite, 'name'> | null };
+
 export interface IBookingRepository {
   create(data: CreateBookingDto): Promise<Booking>;
-  findAll(): Promise<Booking[]>;
-  findById(id: string): Promise<Booking | null>;
+  findAll(): Promise<BookingWithCampsite[]>;
+  findById(id: string): Promise<BookingWithCampsite | null>;
   update(data: UpdateBookingDto): Promise<Booking>;
 
   /**

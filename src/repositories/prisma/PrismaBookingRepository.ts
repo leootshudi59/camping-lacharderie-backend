@@ -1,5 +1,5 @@
 import { PrismaClient, bookings as Booking } from '@prisma/client';
-import { IBookingRepository } from '../interfaces/IBookingRepository';
+import { BookingWithCampsite, IBookingRepository } from '../interfaces/IBookingRepository';
 import { CreateBookingDto } from '../../dtos/create-booking.dto';
 import { UpdateBookingDto } from '../../dtos/update-booking.dto';
 import { randomUUID } from 'crypto';
@@ -18,12 +18,18 @@ export class PrismaBookingRepository implements IBookingRepository {
     });
   }
 
-  async findAll(): Promise<Booking[]> {
-    return prisma.bookings.findMany({ where: { delete_date: { equals: null } } });
+  async findAll(): Promise<BookingWithCampsite[]> {
+    return prisma.bookings.findMany({ 
+      where: { delete_date: { equals: null } }, 
+      include: { campsite: { select: { name: true } } }
+    });
   }
 
-  async findById(id: string): Promise<Booking | null> {
-    return prisma.bookings.findUnique({ where: { booking_id: id } });
+  async findById(id: string): Promise<BookingWithCampsite | null> {
+    return prisma.bookings.findUnique({ 
+      where: { booking_id: id }, 
+      include: { campsite: { select: { name: true } } }
+    });
   }
 
   async update(data: UpdateBookingDto): Promise<Booking> {
