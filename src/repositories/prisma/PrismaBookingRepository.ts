@@ -18,20 +18,6 @@ export class PrismaBookingRepository implements IBookingRepository {
     });
   }
 
-  async findAll(): Promise<BookingWithCampsite[]> {
-    return prisma.bookings.findMany({ 
-      where: { delete_date: { equals: null } }, 
-      include: { campsite: { select: { name: true } } }
-    });
-  }
-
-  async findById(id: string): Promise<BookingWithCampsite | null> {
-    return prisma.bookings.findUnique({ 
-      where: { booking_id: id }, 
-      include: { campsite: { select: { name: true } } }
-    });
-  }
-
   async update(data: UpdateBookingDto): Promise<Booking> {
     return prisma.bookings.update({
       where: { booking_id: data.booking_id },
@@ -53,6 +39,21 @@ export class PrismaBookingRepository implements IBookingRepository {
           { end_date:   { gt: start } },  // existing.end   > newStart
         ],
       },
+    });
+  }
+
+
+  async findAll(): Promise<BookingWithCampsite[]> {
+    return prisma.bookings.findMany({ 
+      where: { delete_date: { equals: null } }, 
+      include: { campsite: { select: { name: true } } }
+    });
+  }
+
+  async findById(id: string): Promise<BookingWithCampsite | null> {
+    return prisma.bookings.findUnique({ 
+      where: { booking_id: id }, 
+      include: { campsite: { select: { name: true } } }
     });
   }
 

@@ -57,7 +57,7 @@ jobs:
         run: npm run build
 
       - name: 🚀 Start API server (dev only)
-        : github.ref == 'refs/heads/dev'
+        if: github.ref == 'refs/heads/dev'
         run: |
           npm run dev &
           sleep 4
