@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const CreateBookingSchema = z.object({
-  campsite_id:  z.string().uuid().optional(),
+  campsite_id:  z.string().uuid(),
   user_id:      z.string().uuid().optional(),
   email:        z.string().email().max(100).optional(),
   phone:        z.string().max(20).optional(),
