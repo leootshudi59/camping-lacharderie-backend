@@ -20,10 +20,18 @@ export class UserService {
   }
 
   async validatePassword(plainPassword: string, hash: string): Promise<boolean> {
+    if (DEBUG_MODE) console.log("plainPassword: ", plainPassword);
+    if (DEBUG_MODE) console.log("hash: ", hash);
+    if (DEBUG_MODE) {
+      const plainHash = await this.hashPassword(plainPassword);
+      console.log("plainHash: ", plainHash);
+    }
     return await bcrypt.compare(plainPassword, hash);
   }
 
   async create(data: CreateUserDto): Promise<User> {
+    if (DEBUG_MODE) console.log("data: ", data);
+    
     // Email uniqueness check
     if (data.email) {
       const existingByEmail = await this.userRepo.findByEmail?.(data.email);
@@ -110,10 +118,10 @@ export class UserService {
 
     if (DEBUG_MODE) console.log("user password_hash: ", user?.password_hash)
 
-    if (!user) throw new Error('Invalid credentials');
+    if (!user) throw new Error('Invalid credentials - No user found');
 
     const isMatch = await this.validatePassword(password, user.password_hash);
-    if (!isMatch) throw new Error('Invalid credentials');
+    if (!isMatch) throw new Error('Invalid credentials - Password does not match');
 
     return user;
   }

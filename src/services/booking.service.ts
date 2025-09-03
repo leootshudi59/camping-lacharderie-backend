@@ -12,6 +12,7 @@ export class BookingService {
     constructor(private bookingRepo: IBookingRepository) { }
 
     async create(dto: CreateBookingDto): Promise<Booking> {
+        if (DEBUG_MODE) console.log("data: ", dto)
         // end_date > start_date
         if (new Date(dto.end_date) <= new Date(dto.start_date)) {
             throw new Error('end_date must be after start_date');
@@ -55,6 +56,7 @@ export class BookingService {
     }
 
     update(dto: UpdateBookingDto) {
+        if (DEBUG_MODE) console.log("data: ", dto)
         if (dto.start_date && dto.end_date &&
             new Date(dto.end_date) <= new Date(dto.start_date)) {
             throw new Error('end_date must be after start_date');

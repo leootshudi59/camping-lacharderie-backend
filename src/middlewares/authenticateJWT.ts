@@ -23,7 +23,6 @@ export async function authenticateJWT(
       exp: number;
     };
 
-    // (optionnel mais sûr) récupérer l’utilisateur actuel pour avoir la version fraîche
     const user = await prisma.users.findUnique({ where: { user_id: payload.sub } });
     if (!user) {
         res.status(401).json({ error: 'User not found' });
