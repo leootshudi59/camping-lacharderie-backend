@@ -1,0 +1,89 @@
+name: Supabase DB Weekly Backup
+
+on:
+  schedule:
+    - cron: "30 2 * * 1"   # Tous les lundis à 02:30 UTC
+  workflow_dispatch:        # Lancer manuellement si besoin
+
+concurrency:
+  group: supabase-db-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      # URL Postgres Supabase (ex: postgresql://postgres:pwd@db.xxx.supabase.co:5432/postgres)
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: 🗂️ Prepare folder
+        run: mkdir -p backups
+
+      # Dumps séparés : rôles, schéma, données
+      - name: 📝 Dump roles
+        run: supabase db dump --db-url "$DIRECT_URL" -f backups/roles.sql --role-only
+
+      - name: 🧱 Dump schema
+        run: supabase db dump --db-url "$DIRECT_URL" -f backups/schema.sql
+
+      - name: 📦 Dump data (COPY)
+        run: supabase db dump --db-url "$DIRECT_URL" -f backups/data.sql --data-only --use-copy
+
+      - name: 🗜️ Archive (.tar.gz)
+        run: |
+          TS=$(date -u +%Y%m%dT%H%M%SZ)
+          ARCHIVE="supabase_backup_${TS}.tar.gz"
+          tar -czf "$ARCHIVE" -C backups roles.sql schema.sql data.sql
+          echo "ARCHIVE=$ARCHIVE" >> $GITHUB_ENV
+          echo "TS=$TS" >> $GITHUB_ENV
+
+      # (Optionnel) Chiffrement de l'archive avant stockage (décommente si tu veux)
+      # - name: 🔐 Encrypt with age (optional)
+      #   if: ${{ secrets.BACKUP_AGE_PUBLIC_KEY != '' }}
+      #   run: |
+      #     age -r "${{ secrets.BACKUP_AGE_PUBLIC_KEY }}" -o "${ARCHIVE}.age" "${ARCHIVE}"
+      #     rm -f "${ARCHIVE}"
+      #     echo "ARCHIVE=${ARCHIVE}.age" >> $GITHUB_ENV
+
+      - name: ⬆️ Upload artifact (retenue 30 jours)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARCHIVE }}
+          path: ${{ env.ARCHIVE }}
+          retention-days: 30
+
+      # (Optionnel) Copie longue durée sur S3 avec chiffrement côté AWS KMS
+      # - name: 🔧 Configure AWS (optional)
+      #   if: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region:            eu-west-3
+      #
+      # - name: ☁️ Upload to S3 (SSE-KMS) (optional)
+      #   if: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_S3_BUCKET != '' && secrets.AWS_KMS_KEY_ID != '' }}
+      #   run: |
+      #     aws s3 cp "${ARCHIVE}" "s3://${{ secrets.AWS_S3_BUCKET }}/supabase/${ARCHIVE}" \
+      #       --sse aws:kms --sse-kms-key-id "${{ secrets.AWS_KMS_KEY_ID }}"
+
+      - name: 📝 Summary
+        run: |
+          SIZE=$(du -h "${ARCHIVE}" | awk '{print $1}')
+          {
+            echo "### Supabase backup created"
+            echo ""
+            echo "- File: \`${ARCHIVE}\`"
+            echo "- Size: ${SIZE}"
+            echo "- Trigger: **${{ github.event_name }}**"
+            echo "- When (UTC): $(date -u +'%Y-%m-%d %H:%M:%SZ')"
+          } >> "$GITHUB_STEP_SUMMARY"

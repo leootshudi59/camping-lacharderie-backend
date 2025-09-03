@@ -4,11 +4,14 @@ import { UpdateCampsiteDto } from '../dtos/update-campsite.dto';
 import { campsite as Campsite } from '@prisma/client';
 import { randomUUID } from 'crypto';
 
+const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
 
 export class CampsiteService {
   constructor(private campsiteRepo: ICampsiteRepository) {}
 
   create(data: CreateCampsiteDto): Promise<Campsite> {
+    if (DEBUG_MODE) console.log("data: ", data);
+
     const safeData = {
       ...data,
       campsite_id: randomUUID(),
