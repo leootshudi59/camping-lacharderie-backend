@@ -20,6 +20,10 @@ export const getAllBookings = async (_: Request, res: Response) => {
 
 export const getBookingById = async (req: Request, res: Response): Promise<any> => {
   try {
+    if (DEBUG_MODE) {
+      console.log("\n=====  getBookingById  =====");
+      console.log("received body: ", req.params);
+    }
     const booking = await service.findById(req.params.booking_id);
     if (!booking) return res.status(404).json({ message: 'Booking not found' });
     res.status(200).json(booking);
