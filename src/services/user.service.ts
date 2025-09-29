@@ -1,11 +1,12 @@
 import { IUserRepository } from '../repositories/interfaces/IUserRepository';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
+import { Role } from '../constants/roles';
 import { users as User } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
-import { Role } from '../constants/roles';
+
 dotenv.config();
 
 const SALT_ROUNDS = 10;
