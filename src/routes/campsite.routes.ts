@@ -12,8 +12,8 @@ import { authenticateJWT } from '../middlewares/authenticateJWT';
 
 const router = Router();
 
-router.use(authenticateJWT);   // JWT obligatoire partout
-router.use(requireAdmin);      // Uniquement admin
+router.use(authenticateJWT);   // JWT compulsory everywhere
+router.use(requireAdmin);      // Only admin
 
 router.get('/',        getAllCampsites);
 router.get('/:campsite_id', getCampsiteById);

@@ -27,18 +27,18 @@ model bookings {
   issues                                         issues[]
   orders                                         orders[]
 
-
   @@schema("campingdb")
 }
 
 model campsite {
-  campsite_id String     @id @db.Uuid
-  name        String     @db.VarChar(45)
-  type        String?    @db.VarChar(45)
-  description String?    @db.VarChar(256)
-  status      String     @db.VarChar(10)
+  campsite_id String        @id @db.Uuid
+  name        String        @db.VarChar(45)
+  type        String?       @db.VarChar(45)
+  description String?       @db.VarChar(256)
+  status      String        @db.VarChar(10)
   image       Bytes?
   bookings    bookings[]
+  inventories inventories[]
 
   @@index([status], map: "idx_campsite_status")
   @@schema("campingdb")
@@ -63,12 +63,15 @@ model events {
 model inventories {
   inventory_id                                String              @id @db.Uuid
   booking_id                                  String?             @db.Uuid
+  campsite_id                                 String?             @db.Uuid
   type                                        inventory_type_enum
   created_at                                  DateTime            @default(now()) @db.Timestamptz(6)
   comment                                     String?             @db.VarChar(256)
   bookings_bookings_inventory_idToinventories bookings[]          @relation("bookings_inventory_idToinventories")
   bookings_inventories_booking_idTobookings   bookings?           @relation("inventories_booking_idTobookings", fields: [booking_id], references: [booking_id], onDelete: Cascade, onUpdate: NoAction)
-  inventory_items                             inventory_items[]
+  campsite                                    campsite?           @relation(fields: [campsite_id], references: [campsite_id], onDelete: SetNull, onUpdate: NoAction)
+
+  inventory_items inventory_items[]
 
   @@schema("campingdb")
 }
