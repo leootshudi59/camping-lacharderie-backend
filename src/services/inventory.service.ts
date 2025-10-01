@@ -17,6 +17,7 @@ export class InventoryService {
    */
   async create(dto: CreateInventoryDto): Promise<Inventory> {
     // 1) Déterminer/valider campsite_id
+    console.log("Service dto", dto)
     let campsiteId = (dto as any).campsite_id ?? null;
 
     if (!campsiteId && dto.booking_id) {
@@ -107,7 +108,7 @@ export class InventoryService {
       throw new Error(`Two consecutive '${nextType}' inventories are not allowed for this campsite`);
     }
   }
-  
+
   /**
    * Vérifie, lors d'un update (type/campsite), l'alternance par rapport au dernier inventaire
    * de ce campsite en **excluant** l'inventaire courant (sinon on se comparerait à soi-même).

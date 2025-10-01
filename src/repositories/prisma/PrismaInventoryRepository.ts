@@ -12,6 +12,7 @@ export class PrismaInventoryRepository implements IInventoryRepository {
         return prisma.inventories.create({
             data: {
                 inventory_id: id,
+                campsite_id: data.campsite_id ?? null,
                 booking_id: data.booking_id ?? null,
                 type: data.type,
                 comment: data.comment,
@@ -137,7 +138,7 @@ export class PrismaInventoryRepository implements IInventoryRepository {
         const b = await prisma.bookings.findUnique({ where: { booking_id: id } });
         return !!b;
     }
-    
+
     async getCampsiteIdForBooking(booking_id: string): Promise<string | null> {
         const b = await prisma.bookings.findUnique({
             where: { booking_id },

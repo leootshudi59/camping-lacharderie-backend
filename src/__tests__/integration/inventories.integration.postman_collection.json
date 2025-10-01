@@ -1,0 +1,780 @@
+{
+	"info": {
+		"_postman_id": "d7503b90-b6ab-4874-8795-25dd973b8fc7",
+		"name": "InventoriesIntegration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20591382"
+	},
+	"item": [
+		{
+			"name": "CREATE",
+			"item": [
+				{
+					"name": "Create first arrival inventory",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code 201 Created\", function() { ",
+									"    pm.response.to.have.status(201)",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"Bound to campsite1 and no booking\", () => {",
+									"  pm.expect(jsonData.campsite_id).to.eql(pm.environment.get(\"campsite1_id\"));",
+									"  pm.expect(jsonData.booking_id).to.be.oneOf([null, undefined]);",
+									"});",
+									"",
+									"pm.test(\"Body has a inventory_id\", function () {",
+									"    pm.expect(jsonData.inventory_id).to.exist;",
+									"    // Stocker l'id du user pour la suite des tests (GET/PUT/DELETE)",
+									"    pm.environment.set(\"inv_arrival_1_id\", jsonData.inventory_id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"type\": \"arrival\",\n  \"comment\": \"Check-in\",\n  \"items\": [\n    { \"name\": \"Assiettes\", \"quantity\": 4 },\n    { \"name\": \"Couverts\",  \"quantity\": 4 }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FAIL - Create consecutive arrival on same campsite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"400 Bad Request\", function() { ",
+									"    pm.response.to.have.status(400)",
+									"});",
+									"",
+									"const j = pm.response.json();",
+									"const err = (j && (j.error || j.message || \"\")) || \"\";",
+									"pm.test(\"Error mentions consecutive 'arrival'\", function() {",
+									"  pm.expect(err).to.match(/Two consecutive 'arrival'/i);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"type\": \"arrival\",\n  \"comment\": \"Should fail (consecutive arrival)\",\n  \"items\": [\n    { \"name\": \"Assiettes\", \"quantity\": 4 },\n    { \"name\": \"Couverts\",  \"quantity\": 4 }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create consecutive departure on same campsite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code 201 Created\", function() { ",
+									"    pm.response.to.have.status(201)",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"Bound to campsite1 and no booking\", () => {",
+									"  pm.expect(jsonData.campsite_id).to.eql(pm.environment.get(\"campsite1_id\"));",
+									"  pm.expect(jsonData.booking_id).to.be.oneOf([null, undefined]);",
+									"});",
+									"",
+									"pm.test(\"Body has a inventory_id\", function () {",
+									"    pm.expect(jsonData.inventory_id).to.exist;",
+									"    // Stocker l'id du user pour la suite des tests (GET/PUT/DELETE)",
+									"    pm.environment.set(\"inv_departure_1_id\", jsonData.inventory_id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"type\": \"departure\",\n  \"comment\": \"Check-out\",\n  \"items\": [\n    { \"name\": \"Assiettes\", \"quantity\": 4 },\n    { \"name\": \"Couverts\",  \"quantity\": 4 }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FAIL – Missing campsite and booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"400 Bad Request\", function() {",
+									"    pm.response.to.have.status(400)",
+									"});",
+									"const j = pm.response.json();",
+									"const err = (j && (j.error || j.message || \"\")) || \"\";",
+									"pm.test(\"Error is 'campsite_id is required'\", () => {",
+									"  pm.expect(err).to.match(/campsite_id is required/i);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"arrival\",\n  \"comment\": \"Missing campsite_id\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FAIL – Unknown campsite id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"400 Bad Request\", function() {",
+									"    pm.response.to.have.status(400)",
+									"});",
+									"const j = pm.response.json();",
+									"const err = (j && (j.error || j.message || \"\")) || \"\";",
+									"pm.test(\"Error is 'Campsite not found'\", () => {",
+									"  pm.expect(err).to.match(/Campsite not found/i);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"11111111-1111-1111-1111-111111111111\",\n  \"type\": \"arrival\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create via Booking id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"201 Created\", function() {",
+									"    pm.response.to.have.status(201)",
+									"});",
+									"",
+									"const jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Type and campsite deduced\", () => {",
+									"  pm.expect(jsonData.type).to.eql(\"arrival\");",
+									"  pm.expect(jsonData.campsite_id).to.eql(pm.environment.get(\"campsite1_id\"));",
+									"  pm.expect(jsonData.booking_id).to.eql(pm.environment.get(\"booking1_id\"));",
+									"});",
+									"",
+									"pm.environment.set(\"inv_from_booking_id\", jsonData.inventory_id);",
+									"",
+									"// (Optionnel) Vérifier le side-effect: bookings.inventory_id == created",
+									"const token = pm.environment.get(\"jwt_admin\");",
+									"pm.sendRequest({",
+									"  url: `http://localhost:8000/api/bookings/${pm.environment.get(\"booking1_id\")}`,",
+									"  method: \"GET\",",
+									"  header: { Authorization: `Bearer ${token}` }",
+									"}, (err, res) => {",
+									"  pm.test(\"Booking GET succeeds\", () => {",
+									"    pm.expect(err).to.be.null;",
+									"    pm.expect(res).to.have.property(\"code\", 200);",
+									"  });",
+									"  if (!err && res.code === 200) {",
+									"    const b = res.json();",
+									"    pm.test(\"Booking's last inventory is the created one\", () => {",
+									"      pm.expect(b.inventory_id).to.eql(pm.environment.get(\"inv_from_booking_id\"));",
+									"    });",
+									"  }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"booking_id\": \"{{booking1_id}}\",\n  \"type\": \"arrival\",\n  \"comment\": \"Created via booking; campsite deduced\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FAIL – Invalid booking_id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"400 Bad Request\", function() {",
+									"    pm.response.to.have.status(400)",
+									"});",
+									"const j = pm.response.json();",
+									"const err = (j && (j.error || j.message || \"\")) || \"\";",
+									"pm.test(\"Error is 'Booking not found'\", () => {",
+									"  pm.expect(err).to.match(/Booking not found/i);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"booking_id\": \"22222222-2222-2222-2222-222222222222\",\n  \"type\": \"arrival\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GET",
+			"item": [
+				{
+					"name": "Get one inventory (by ID)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code - 200 OK\", function () { ",
+									"  pm.response.to.have.status(200) ",
+									"});",
+									"",
+									"pm.test(\"Campsite is campsite1\", function () { ",
+									"  pm.expect(pm.response.json().campsite_id).to.eql(pm.environment.get(\"campsite1_id\"))",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/{{inv_arrival_1_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								"{{inv_arrival_1_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all inventories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code - 200 OK\", function () { ",
+									"  pm.response.to.have.status(200) ",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function() { ",
+									"  pm.expect(arr).to.be.an(\"array\")",
+									"});",
+									"",
+									"pm.test(\"Contains at least 3 inventories\", function () {",
+									"  const arr = pm.response.json();",
+									"  pm.expect(arr.length).to.be.at.least(3);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UPDATE",
+			"item": [
+				{
+					"name": "Update first inventory, comment only",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code - 200 OK\", function () { ",
+									"  pm.response.to.have.status(200) ",
+									"});",
+									"pm.test(\"Comment updated\", function () {",
+									"  pm.expect(pm.response.json().comment).to.eql('Arrival updated comment')",
+									"});",
+									"pm.test(\"ID unchanged\", function () {",
+									"  pm.expect(pm.response.json().inventory_id).to.eql(pm.environment.get(\"inv_arrival_1_id\"))",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"comment\": \"Arrival updated comment\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/{{inv_arrival_1_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								"{{inv_arrival_1_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update first inventory, replace items",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code - 200 OK\", function () { ",
+									"  pm.response.to.have.status(200) ",
+									"});",
+									"",
+									"const token = pm.environment.get(\"jwt_admin\");",
+									"pm.sendRequest({",
+									"  url: `http://localhost:8000/api/inventories/${pm.environment.get(\"inv_arrival_1_id\")}`,",
+									"  method: \"GET\",",
+									"  header: { Authorization: `Bearer ${token}` }",
+									"}, (err, res) => {",
+									"  if (!err && res.code === 200) {",
+									"    const inv = res.json();",
+									"    pm.test(\"items_count is 3 after replace_items\", function() {",
+									"      pm.expect(inv.items_count).to.eql(3)",
+									"    });",
+									"  }",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"replace_items\": [\n    { \"name\": \"Poeles\",   \"quantity\": 2 },\n    { \"name\": \"Verres\",   \"quantity\": 6 },\n    { \"name\": \"Couteaux\", \"quantity\": 4 }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/{{inv_arrival_1_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								"{{inv_arrival_1_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update, attach booking to inventory",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code - 200 OK\", function () { ",
+									"  pm.response.to.have.status(200) ",
+									"});",
+									"pm.test(\"Booking attached\", function () {",
+									"  pm.expect(pm.response.json().booking_id).to.eql(pm.environment.get(\"booking1_id\"))",
+									"});",
+									"",
+									"// Vérifier side-effect: bookings.inventory_id = inv_arrival_1_id",
+									"const token = pm.environment.get(\"jwt_admin\");",
+									"pm.sendRequest({",
+									"  url: `http://localhost:8000/api/bookings/${pm.environment.get(\"booking1_id\")}`,",
+									"  method: \"GET\",",
+									"  header: { Authorization: `Bearer ${token}` }",
+									"}, (err, res) => {",
+									"  pm.test(\"Booking GET ok\", () => {",
+									"    pm.expect(err).to.be.null;",
+									"    pm.expect(res.code).to.eql(200);",
+									"  });",
+									"  if (!err && res.code === 200) {",
+									"    pm.test(\"Booking.last inventory set to inv_arrival_1_id\", () => {",
+									"      pm.expect(res.json().inventory_id).to.eql(pm.environment.get(\"inv_arrival_1_id\"));",
+									"    });",
+									"  }",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"booking_id\": \"{{booking1_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/inventories/{{inv_arrival_1_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"inventories",
+								"{{inv_arrival_1_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delete inventory",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code - 204 No Content\", function ()  {",
+							"  pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/inventories/{{inv_arrival_1_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"inventories",
+						"{{inv_arrival_1_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
