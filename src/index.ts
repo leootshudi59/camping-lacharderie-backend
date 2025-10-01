@@ -7,6 +7,7 @@ import { authenticateJWT } from './middlewares/authenticateJWT';
 import userRoutes from './routes/user.routes';
 import campsiteRoutes from './routes/campsite.routes';
 import bookingRoutes from './routes/booking.routes';
+import inventoryRoutes from "./routes/inventory.routes";
 import { createUser, loginUser } from './controllers/user.controller';
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.post('/api/users', createUser);
 app.use('/api/users', authenticateJWT, userRoutes);
 app.use('/api/campsites', authenticateJWT, campsiteRoutes);
 app.use('/api/bookings', authenticateJWT, bookingRoutes);
+app.use('/api/inventories', authenticateJWT, inventoryRoutes);
 
 // ----------- 404 Handler -----------
 app.use((_req, res, _next) => {
