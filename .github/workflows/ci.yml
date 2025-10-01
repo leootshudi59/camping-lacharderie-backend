@@ -62,9 +62,9 @@ jobs:
           npm run dev &
           sleep 4
 
-      - name: ⏳ Wait for API to be ready
-        if: github.ref == 'refs/heads/dev'
-        run: npx wait-on http://localhost:8000/api/users
+      # - name: ⏳ Wait for API to be ready
+      #   if: github.ref == 'refs/heads/dev'
+      #   run: npx wait-on http://localhost:8000/api/users
 
       - name: 🧪 Integration tests - Users
         run: >
