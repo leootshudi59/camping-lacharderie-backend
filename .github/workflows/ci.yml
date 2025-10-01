@@ -62,14 +62,14 @@ jobs:
           npm run dev &
           sleep 4
 
-      # - name: ⏳ Wait for API to be ready
-      #   if: github.ref == 'refs/heads/dev'
-      #   run: npx wait-on http://localhost:8000/api/users
+      - name: ⏳ Wait for API to be ready
+        if: github.ref == 'refs/heads/dev'
+        run: npx wait-on http://localhost:8000/api/users
 
       - name: 🧪 Integration tests - Users
         run: >
           newman run src/__tests__/integration/users.integration.postman_collection.json
-          -e   src/__tests__/integration/dev.postman_environment.json
+          -e  src/__tests__/integration/dev.postman_environment.json
 
       - name: 🧪 Integration tests - Campsite
         run: |
@@ -77,11 +77,15 @@ jobs:
           -e src/__tests__/integration/dev.postman_environment.json \
           --export-environment env.tmp.json
 
-
       - name: 🧪 Integration tests - Booking
         run: >
           newman run src/__tests__/integration/booking.integration.postman_collection.json
-          -e   env.tmp.json
+          -e  env.tmp.json   
+          
+      - name: 🧪 Integration tests - Inventory
+        run: >
+          newman run src/__tests__/integration/inventories.integration.postman_collection.json
+          -e  env.tmp.json
 
       - name: 🧹 Stop API server
         if: always()               # exécute même si un test échoue
