@@ -81,6 +81,7 @@ jobs:
         run: >
           newman run src/__tests__/integration/booking.integration.postman_collection.json
           -e  env.tmp.json   
+          --export-environment env.tmp.json
           
       - name: 🧪 Integration tests - Inventory
         run: >
