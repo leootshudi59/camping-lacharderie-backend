@@ -19,8 +19,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors()); // Permet les appels cross-origin
 app.use(helmet()); // Headers de sécurité
 
+// ----------- Routes publiques -----------
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to the API' });
+});
 
-// ----------- Routes -----------
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime() });
+});
+
+// ----------- Routes privées/protégées -----------
 app.post('/api/users/login', loginUser);
 app.post('/api/users', createUser);
 app.use('/api/users', authenticateJWT, userRoutes);
@@ -37,10 +45,6 @@ app.use((_req, res, _next) => {
 app.use((err: Error, _req: any, res: any, _next: any) => {
   // Améliore la gestion des erreurs (en prod, n’expose pas le stack trace)
   res.status(500).json({ error: err.message || 'Internal Server Error' });
-});
-
-app.use('/', (req, res) => {
-  res.json({ message: 'Welcome to the API' });
 });
 
 // ----------- Démarrage du serveur -----------
