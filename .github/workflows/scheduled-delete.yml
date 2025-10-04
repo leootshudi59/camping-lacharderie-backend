@@ -1,0 +1,26 @@
+name: Scheduled Delete Old Users
+
+on:
+  push:                # Add this line
+  schedule:
+    - cron: '0 3 1,15 * *' # Le 1er et le 15 de chaque mois à 03:00 UTC (modifiable, cf. https://crontab.guru)
+  workflow_dispatch:     # Pour pouvoir lancer manuellement
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Run the delete_old_users procedure
+        env:
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: |
+          export PGPASSWORD=$(echo $DIRECT_URL | sed -E 's/.*:([^@]+)@.*/\1/')
+          export PGUSER=$(echo $DIRECT_URL | sed -E 's|postgresql://([^:]+):.*|\1|')
+          export PGHOST=$(echo $DIRECT_URL | sed -E 's|.*@([^:/]+).*|\1|')
+          export PGPORT=$(echo $DIRECT_URL | sed -E 's|.*:([0-9]+)/.*|\1|')
+          export PGDATABASE=$(echo $DIRECT_URL | sed -E 's|.*/([a-zA-Z0-9_]+)$|\1|')
+
+          echo "SELECT campingdb.delete_old_users();" | psql "host=$PGHOST port=$PGPORT dbname=$PGDATABASE user=$PGUSER password=$PGPASSWORD sslmode=require"

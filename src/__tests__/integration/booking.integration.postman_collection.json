@@ -1,0 +1,463 @@
+{
+	"info": {
+		"_postman_id": "ec2dc50b-00a3-4eac-b6f8-cd64a21a8c85",
+		"name": "BookingsIntegration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20591382"
+	},
+	"item": [
+		{
+			"name": "CREATE",
+			"item": [
+				{
+					"name": "Create first booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code 201 Created\", () => pm.response.to.have.status(201));",
+									"const id = pm.response.json().booking_id;",
+									"pm.environment.set('booking1_id', id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"email\": \"guest1@example.com\",\n  \"start_date\": \"2025-08-01T14:00:00Z\",\n  \"end_date\":   \"2025-08-05T10:00:00Z\",\n  \"res_name\":   \"Doe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/bookings/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"bookings",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create second booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code 201 Created\", () => pm.response.to.have.status(201));",
+									"const id = pm.response.json().booking_id;",
+									"pm.environment.set('booking2_id', id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"phone\": \"0700000001\",\n  \"start_date\": \"2025-08-05T10:00:00Z\",  // = end of booking1\n  \"end_date\":   \"2025-08-08T10:00:00Z\",\n  \"res_name\":   \"Smith\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/bookings/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"bookings",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FAIL - Add overlapping booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code - 400 Bad Request (overlap)\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"email\": \"overlap@example.com\",\n  \"start_date\": \"2025-08-03T12:00:00Z\",\n  \"end_date\":   \"2025-08-04T10:00:00Z\",\n  \"res_name\":   \"Overlap\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/bookings/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"bookings",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FAIL - Add booking no contact",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code - 400 Bad Request (missing contact)\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"start_date\": \"2025-09-01T12:00:00Z\",\n  \"end_date\":   \"2025-09-03T10:00:00Z\",\n  \"res_name\":   \"NoContact\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/bookings/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"bookings",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ADMIN ONLY",
+			"item": [
+				{
+					"name": "Get all bookings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code - 200 OK\", function () { pm.response.to.have.status(200) });",
+									"pm.test(\"Contains at least 2 bookings\", function () {",
+									"  const arr = pm.response.json();",
+									"  pm.expect(arr.length).to.be.at.least(2);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/bookings/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"bookings",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get one booking (by ID)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code - 200 OK\", function () { pm.response.to.have.status(200) });",
+							"pm.test(\"Correct res_name\", function () {",
+							"  pm.expect(pm.response.json().res_name).to.eql('Doe');",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/bookings/{{booking1_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bookings",
+						"{{booking1_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code - 200 OK\", function () { pm.response.to.have.status(200) });",
+							"pm.test(\"Name updated\", function () {",
+							"  pm.expect(pm.response.json().res_name).to.eql('Doe Updated');",
+							"});",
+							"pm.test(\"Phone updated\", function () {",
+							"  pm.expect(pm.response.json().phone).to.eql('0711223344')",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"res_name\": \"Doe Updated\",\n  \"phone\": \"0711223344\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/bookings/{{booking1_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bookings",
+						"{{booking1_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code - 204 No Content\", function ()  {",
+							"  pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/bookings/{{booking1_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bookings",
+						"{{booking1_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"/**",
+					" * Pre-request script exécuté avant chaque requête du dossier.",
+					" * S'il n’existe pas de JWT admin, on fait un login et on le stocke.",
+					" */",
+					"if (!pm.environment.get(\"jwt_admin\")) {",
+					"  console.log(\"🔐 No jwt_admin found → performing admin login…\");",
+					"",
+					"  const loginReq = {",
+					"    url: \"localhost:8000/api/users/login\",",
+					"    method: \"POST\",",
+					"    header: { \"Content-Type\": \"application/json\" },",
+					"    body: {",
+					"      mode: \"raw\",",
+					"      raw: JSON.stringify({",
+					"        identifier: \"admin@example.com\",",
+					"        password:   \"s3curePassword1234\"",
+					"      })",
+					"    }",
+					"  };",
+					"",
+					"  /**",
+					"   * pm.sendRequest est ASYNCHRONE.",
+					"   * Tant que le callback n'est pas terminé, Postman met la requête courante “en pause”.",
+					"   * Une fois le token stocké, la requête courante reprendra avec l’Authorization dans ses headers.",
+					"   */",
+					"  pm.sendRequest(loginReq, (err, res) => {",
+					"    if (err) {",
+					"      console.error(\"❌ Admin login failed:\", err);",
+					"      // On peut interrompre la collection si nécessaire",
+					"      throw new Error(\"Admin login failed\");",
+					"    }",
+					"",
+					"    const token = res.json().token;",
+					"    if (!token) {",
+					"      throw new Error(\"No token in login response\");",
+					"    }",
+					"",
+					"    pm.environment.set(\"jwt_admin\", token);",
+					"    console.log(\"✅ jwt_admin saved to environment\");",
+					"  });",
+					"}",
+					"",
+					"if (!pm.environment.get(\"campsite1_id\")) {",
+					"    console.log(\"❌ campsite1_id not found\")",
+					"} else {",
+					"    console.log(\"✅ campsite1_id found\")",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

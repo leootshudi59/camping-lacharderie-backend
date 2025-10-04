@@ -1,14 +1,197 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DIRECT_URL")
+  schemas  = ["campingdb"]
+}
+
+model bookings {
+  booking_id                                     String        @id @db.Uuid
+  campsite_id                                    String?       @db.Uuid
+  user_id                                        String?       @db.Uuid
+  email                                          String?       @db.VarChar(100)
+  phone                                          String?       @db.VarChar(20)
+  start_date                                     DateTime      @db.Timestamptz(6)
+  end_date                                       DateTime      @db.Timestamptz(6)
+  res_name                                       String        @db.VarChar(50)
+  inventory_id                                   String?       @db.Uuid
+  delete_date                                    DateTime?     @db.Timestamptz(6)
+  campsite                                       campsite?     @relation(fields: [campsite_id], references: [campsite_id], onDelete: Cascade, onUpdate: NoAction)
+  users                                          users?        @relation(fields: [user_id], references: [user_id], onUpdate: NoAction)
+  inventories_bookings_inventory_idToinventories inventories?  @relation("bookings_inventory_idToinventories", fields: [inventory_id], references: [inventory_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_bookings_inventory")
+  inventories_inventories_booking_idTobookings   inventories[] @relation("inventories_booking_idTobookings")
+  issues                                         issues[]
+  orders                                         orders[]
+
+  @@schema("campingdb")
+}
+
+model campsite {
+  campsite_id String        @id @db.Uuid
+  name        String        @db.VarChar(45)
+  type        String?       @db.VarChar(45)
+  description String?       @db.VarChar(256)
+  status      String        @db.VarChar(10)
+  image       Bytes?
+  bookings    bookings[]
+  inventories inventories[]
+
+  @@index([status], map: "idx_campsite_status")
+  @@schema("campingdb")
+}
+
+model events {
+  event_id       String   @id @db.Uuid
+  title          String   @db.VarChar(255)
+  description    String?
+  start_datetime DateTime @db.Timestamptz(6)
+  end_datetime   DateTime @db.Timestamptz(6)
+  location       String?  @db.VarChar(255)
+  language       String?  @db.Char(5)
+  created_by     String?  @db.Uuid
+  image          Bytes?
+  users          users?   @relation(fields: [created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([start_datetime], map: "idx_events_start")
+  @@schema("campingdb")
+}
+
+model inventories {
+  inventory_id                                String              @id @db.Uuid
+  booking_id                                  String?             @db.Uuid
+  campsite_id                                 String?             @db.Uuid
+  type                                        inventory_type_enum
+  created_at                                  DateTime            @default(now()) @db.Timestamptz(6)
+  comment                                     String?             @db.VarChar(256)
+  bookings_bookings_inventory_idToinventories bookings[]          @relation("bookings_inventory_idToinventories")
+  bookings_inventories_booking_idTobookings   bookings?           @relation("inventories_booking_idTobookings", fields: [booking_id], references: [booking_id], onDelete: Cascade, onUpdate: NoAction)
+  campsite                                    campsite?           @relation(fields: [campsite_id], references: [campsite_id], onDelete: SetNull, onUpdate: NoAction)
+
+  inventory_items inventory_items[]
+
+  @@schema("campingdb")
+}
+
+model inventory_items {
+  inventory_item_id String       @id @db.Uuid
+  inventory_id      String?      @db.Uuid
+  name              String       @db.VarChar(150)
+  quantity          Int
+  condition         String?      @db.VarChar(100)
+  image             Bytes?
+  inventories       inventories? @relation(fields: [inventory_id], references: [inventory_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("campingdb")
+}
+
+model issues {
+  issue_id    String            @id @db.Uuid
+  booking_id  String?           @db.Uuid
+  title       String            @db.VarChar(150)
+  description String?
+  status      issue_status_enum @default(open)
+  resolved_by String?           @db.Uuid
+  created_at  DateTime          @default(now()) @db.Timestamptz(6)
+  image       Bytes?
+  bookings    bookings?         @relation(fields: [booking_id], references: [booking_id], onUpdate: NoAction)
+  users       users?            @relation(fields: [resolved_by], references: [user_id], onUpdate: NoAction)
+
+  @@schema("campingdb")
+}
+
+model news {
+  news_id      String    @id @db.Uuid
+  title        String    @db.VarChar(255)
+  content      String?
+  published_at DateTime  @default(now()) @db.Timestamptz(6)
+  edit_date    DateTime? @db.Timestamptz(6)
+  delete_date  DateTime? @db.Timestamptz(6)
+  image        Bytes?
+  created_by   String?   @db.Uuid
+  users        users?    @relation(fields: [created_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("campingdb")
+}
+
+model order_items {
+  order_item_id String    @id @db.Uuid
+  order_id      String?   @db.Uuid
+  product_id    String?   @db.Uuid
+  quantity      Int
+  orders        orders?   @relation(fields: [order_id], references: [order_id], onDelete: Cascade, onUpdate: NoAction)
+  products      products? @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("campingdb")
+}
+
+model orders {
+  order_id    String            @id @db.Uuid
+  booking_id  String?           @db.Uuid
+  status      order_status_enum @default(received)
+  created_at  DateTime          @default(now()) @db.Timestamptz(6)
+  order_items order_items[]
+  bookings    bookings?         @relation(fields: [booking_id], references: [booking_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("campingdb")
+}
+
+model products {
+  product_id  String        @id @db.Uuid
+  name        String        @db.VarChar(255)
+  category    String?       @db.VarChar(50)
+  unit        String        @db.VarChar(25)
+  price       Decimal?      @db.Decimal(8, 2)
+  available   Boolean       @default(true)
+  image       Bytes?
+  order_items order_items[]
+
+  @@index([available], map: "idx_products_available")
+  @@schema("campingdb")
+}
+
+model users {
+  user_id       String     @id @db.Uuid
+  first_name    String?    @db.VarChar(50)
+  last_name     String     @db.VarChar(50)
+  email         String?    @unique @db.VarChar(100)
+  phone         String?    @unique @db.VarChar(20)
+  password_hash String
+  role          Int        @db.SmallInt
+  locale        String?    @db.Char(3)
+  created_at    DateTime   @default(now()) @db.Timestamptz(6)
+  delete_date   DateTime?  @db.Timestamptz(6)
+  bookings      bookings[]
+  events        events[]
+  issues        issues[]
+  news          news[]
+
+  @@schema("campingdb")
+}
+
+enum inventory_type_enum {
+  arrival
+  departure
+
+  @@schema("campingdb")
+}
+
+enum issue_status_enum {
+  open
+  in_progress
+  resolved
+
+  @@schema("campingdb")
+}
+
+enum order_status_enum {
+  received
+  delivered
+  cancelled
+  paid
+
+  @@schema("campingdb")
 }

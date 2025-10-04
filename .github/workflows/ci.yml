@@ -2,12 +2,12 @@ name: CI - Vitest
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, dev, 'feature/*']
   pull_request:
-    branches: [main, develop]
+    branches: [main, dev, 'feature/*']
 
 jobs:
-  test:
+  unit:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,10 +17,79 @@ jobs:
     - name: 🟢 Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 22.14.0
+
+    - name: 🌍 Set environment variables from GitHub secrets
+      run: echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> $GITHUB_ENV
 
     - name: 📦 Install dependencies
       run: npm ci
 
     - name: 🧪 Run unit tests with Vitest
       run: npx vitest run
+
+  # ─────────────────────────────────────────────
+  # 2. INTEGRATION TESTS ─ Newman (dev only)
+  # ─────────────────────────────────────────────
+
+  integration:
+    needs: unit              # Lance seulement si unit OK
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.14.0
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      # 🟦 TESTS D'INTÉGRATION : uniquement sur dev
+      - name: 🌍 Set environment variables from GitHub secrets
+        run: echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> $GITHUB_ENV && echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV && echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> $GITHUB_ENV
+
+      - name: 🏗️ Build app
+        if: github.ref == 'refs/heads/dev'
+        run: npm run build
+
+      - name: 🚀 Start API server (dev only)
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          npm run dev &
+          sleep 4
+
+      # - name: ⏳ Wait for API to be ready
+      #   if: github.ref == 'refs/heads/dev'
+      #   run: npx wait-on http://localhost:8000/api/users
+
+      - name: 🧪 Integration tests - Users
+        run: >
+          newman run src/__tests__/integration/users.integration.postman_collection.json
+          -e  src/__tests__/integration/dev.postman_environment.json
+
+      - name: 🧪 Integration tests - Campsite
+        run: |
+          newman run src/__tests__/integration/campsite.integration.postman_collection.json \
+          -e src/__tests__/integration/dev.postman_environment.json \
+          --export-environment env.tmp.json
+
+      - name: 🧪 Integration tests - Booking
+        run: >
+          newman run src/__tests__/integration/booking.integration.postman_collection.json
+          -e  env.tmp.json   
+          --export-environment env.tmp.json
+          
+      - name: 🧪 Integration tests - Inventory
+        run: >
+          newman run src/__tests__/integration/inventories.integration.postman_collection.json
+          -e  env.tmp.json
+
+      - name: 🧹 Stop API server
+        if: always()               # exécute même si un test échoue
+        run: |
+          kill $(cat api_pid.txt) || true
+        
