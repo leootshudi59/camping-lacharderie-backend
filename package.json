@@ -1,6 +1,6 @@
 {
   "name": "camping-backend",
-  "version": "0.1.0",
+  "version": "0.0.1-beta",
   "main": "index.js",
   "scripts": {
     "test": "vitest run --coverage",
