@@ -114,8 +114,7 @@ export class PrismaInventoryRepository implements IInventoryRepository {
                     select: { booking_id: true, res_name: true }
                 },
                 _count: { select: { inventory_items: true } },
-                // Si tu veux renvoyer aussi la liste des items ici:
-                // inventory_items: true,
+                inventory_items: true,
             },
         });
         if (!inv) return null;
