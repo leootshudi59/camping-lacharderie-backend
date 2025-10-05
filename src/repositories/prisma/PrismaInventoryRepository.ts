@@ -89,6 +89,9 @@ export class PrismaInventoryRepository implements IInventoryRepository {
                 bookings_inventories_booking_idTobookings: { // le booking rattaché (via booking_id)
                     select: { booking_id: true, res_name: true }
                 },
+                campsite: {                                  // ⬅️ AJOUT : on charge le campsite lié
+                    select: { campsite_id: true, name: true }
+                },
                 _count: { select: { inventory_items: true } },
             },
             orderBy: { created_at: 'desc' },
@@ -102,6 +105,12 @@ export class PrismaInventoryRepository implements IInventoryRepository {
                     res_name: inv.bookings_inventories_booking_idTobookings.res_name,
                 }
                 : null,
+            campsite: inv.campsite
+                ? {
+                    campsite_id: inv.campsite.campsite_id,
+                    name: inv.campsite.name,
+                }
+                : null,
             items_count: inv._count.inventory_items,
         })) as any;
     }
@@ -113,6 +122,9 @@ export class PrismaInventoryRepository implements IInventoryRepository {
                 bookings_inventories_booking_idTobookings: {
                     select: { booking_id: true, res_name: true }
                 },
+                campsite: {                                  // ⬅️ AJOUT : on charge le campsite lié
+                    select: { campsite_id: true, name: true }
+                },
                 _count: { select: { inventory_items: true } },
                 inventory_items: true,
             },
@@ -123,6 +135,9 @@ export class PrismaInventoryRepository implements IInventoryRepository {
             ...inv,
             booking: inv.bookings_inventories_booking_idTobookings
                 ? { booking_id: inv.bookings_inventories_booking_idTobookings.booking_id, res_name: inv.bookings_inventories_booking_idTobookings.res_name }
+                : null,
+            campsite: inv.campsite
+                ? { campsite_id: inv.campsite.campsite_id, name: inv.campsite.name }
                 : null,
             items_count: inv._count.inventory_items,
         } as any;

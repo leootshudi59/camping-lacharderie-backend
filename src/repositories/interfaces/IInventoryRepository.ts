@@ -5,6 +5,7 @@ import { UpdateInventoryDto } from '../../dtos/update-inventory.dto';
 // Méta renvoyée par find* : infos utiles côté front
 export type InventoryWithMeta = Inventory & {
   booking?: { booking_id: string; res_name: string | null } | null;
+  campsite?: { campsite_id: string; name: string } | null;   // <— AJOUT
   items_count: number;
 };
 
