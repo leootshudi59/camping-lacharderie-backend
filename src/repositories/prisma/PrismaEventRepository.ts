@@ -1,13 +1,19 @@
 import { PrismaClient, events as Event } from '@prisma/client';
 import { IEventRepository } from '../interfaces/IEventRepository';
 import { CreateEventDto } from '../../dtos/create-event.dto';
+import { UpdateEventDto } from '../../dtos/update-event.dto';
 
 const prisma = new PrismaClient();
 
 export class PrismaEventRepository implements IEventRepository {
   async create(data: CreateEventDto): Promise<Event> {
     return prisma.events.create({
-      data: { ...data, event_id: crypto.randomUUID() },
+      data: { 
+        ...data, 
+        event_id: crypto.randomUUID(),
+        start_datetime: new Date(data.start_datetime),
+        end_datetime: new Date(data.end_datetime),
+        },
     });
   }
 
@@ -19,10 +25,14 @@ export class PrismaEventRepository implements IEventRepository {
     return prisma.events.findUnique({ where: { event_id: id } });
   }
 
-  async update(data: Partial<Event> & { event_id: string }): Promise<Event> {
+  async update(data: UpdateEventDto): Promise<Event> {
     return prisma.events.update({
       where: { event_id: data.event_id },
-      data,
+      data: {
+        ...data,
+        start_datetime: data.start_datetime ? new Date(data.start_datetime) : undefined,
+        end_datetime: data.end_datetime ? new Date(data.end_datetime) : undefined,
+      },
     });
   }
 

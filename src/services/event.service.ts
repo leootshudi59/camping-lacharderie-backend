@@ -9,7 +9,7 @@ const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
 export class EventService {
   constructor(private eventRepo: IEventRepository) {}
 
-  create(dto: CreateEventDto): Promise<Event> {
+  async create(dto: CreateEventDto): Promise<Event> {
     if (DEBUG_MODE) console.log("data: ", dto);
 
     if (new Date(dto.end_datetime) <= new Date(dto.start_datetime)) {

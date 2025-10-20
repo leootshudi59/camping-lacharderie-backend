@@ -43,8 +43,8 @@ export const createEvent = async (req: Request, res: Response) => {
     let reqBody = {
       title:       req.body.title,
       description: req.body.description,
-      start_at:    req.body.start_at,
-      end_at:      req.body.end_at,
+      start_datetime:    req.body.start_datetime,
+      end_datetime:      req.body.end_datetime,
       location:    req.body.location,
       status:      req.body.status,
       image:       undefined as Buffer | undefined,
