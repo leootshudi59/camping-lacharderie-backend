@@ -68,12 +68,18 @@ jobs:
 
       - name: 🧪 Integration tests - Users
         run: >
-          newman run src/__tests__/integration/users.integration.postman_collection.json
+          newman run src/__tests__/integration/user.integration.postman_collection.json
           -e  src/__tests__/integration/dev.postman_environment.json
 
       - name: 🧪 Integration tests - Campsite
         run: |
           newman run src/__tests__/integration/campsite.integration.postman_collection.json \
+          -e src/__tests__/integration/dev.postman_environment.json \
+          --export-environment env.tmp.json
+
+      - name: 🧪 Integration tests - Product
+        run: |
+          newman run src/__tests__/integration/product.integration.postman_collection.json \
           -e src/__tests__/integration/dev.postman_environment.json \
           --export-environment env.tmp.json
 
@@ -85,7 +91,7 @@ jobs:
           
       - name: 🧪 Integration tests - Inventory
         run: >
-          newman run src/__tests__/integration/inventories.integration.postman_collection.json
+          newman run src/__tests__/integration/inventory.integration.postman_collection.json
           -e  env.tmp.json
 
       - name: 🧹 Stop API server
