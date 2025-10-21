@@ -1,0 +1,307 @@
+{
+	"info": {
+		"_postman_id": "8d2132f9-eecf-4247-9dab-4a0d5ed57e33",
+		"name": "ProductsIntegration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20591382"
+	},
+	"item": [
+		{
+			"name": "CREATE",
+			"item": [
+				{
+					"name": "Create product A",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const json = pm.response.json();",
+									"",
+									"pm.test(\"Product has id\", function () {",
+									"    pm.expect(json.product_id).to.be.a(\"string\")",
+									"});",
+									"pm.environment.set(\"productA_id\", json.product_id);",
+									"",
+									"pm.test(\"Fields persisted\", () => {",
+									"  pm.expect(json.name).to.eql(\"Bouteille d'eau 1L\");",
+									"  pm.expect(json.unit).to.eql(\"piece\");",
+									"  pm.expect(json.available).to.eql(true);",
+									"  pm.expect(Number(json.price)).to.eql(1.99);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Bouteille d'eau 1L\",\n  \"category\": \"epicerie\",\n  \"unit\": \"piece\",\n  \"price\": 1.99,\n  \"available\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/products/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"products",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create product B",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", function() {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const id = pm.response.json().product_id;",
+									"pm.environment.set(\"productB_id\", id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Sac de charbon\",\n  \"category\": \"bbq\",\n  \"unit\": \"sac\",\n  \"price\": 9.9\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/products/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"products",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"/**",
+							" * Pre-request script exécuté avant chaque requête du dossier.",
+							" * S'il n’existe pas de JWT admin, on fait un login et on le stocke.",
+							" */",
+							"if (!pm.environment.get(\"jwt_admin\")) {",
+							"  console.log(\"🔐 No jwt_admin found → performing admin login…\");",
+							"",
+							"  const loginReq = {",
+							"    url: \"localhost:8000/api/users/login\",",
+							"    method: \"POST\",",
+							"    header: { \"Content-Type\": \"application/json\" },",
+							"    body: {",
+							"      mode: \"raw\",",
+							"      raw: JSON.stringify({",
+							"        identifier: \"admin@example.com\",",
+							"        password:   \"s3curePassword1234\"",
+							"      })",
+							"    }",
+							"  };",
+							"",
+							"  /**",
+							"   * pm.sendRequest est ASYNCHRONE.",
+							"   * Tant que le callback n'est pas terminé, Postman met la requête courante “en pause”.",
+							"   * Une fois le token stocké, la requête courante reprendra avec l’Authorization dans ses headers.",
+							"   */",
+							"  pm.sendRequest(loginReq, (err, res) => {",
+							"    if (err) {",
+							"      console.error(\"❌ Admin login failed:\", err);",
+							"      // On peut interrompre la collection si nécessaire",
+							"      throw new Error(\"Admin login failed\");",
+							"    }",
+							"",
+							"    const token = res.json().token;",
+							"    if (!token) {",
+							"      throw new Error(\"No token in login response\");",
+							"    }",
+							"",
+							"    pm.environment.set(\"jwt_admin\", token);",
+							"    console.log(\"✅ jwt_admin saved to environment\");",
+							"  });",
+							"}"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "GET",
+			"item": [
+				{
+					"name": "Get all products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 200 OK\", function() {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"const arr = pm.response.json();",
+									"",
+									"pm.test(\"Returns an array\", function() {",
+									"    pm.expect(Array.isArray(arr)).to.be.true",
+									"});",
+									"pm.test(\"Has at least 1 product\", () => pm.expect(arr.length).to.be.above(0));",
+									"",
+									"// Optionnel : retrouver Product A par id",
+									"const productAId = pm.environment.get(\"productA_id\");",
+									"if (productAId) {",
+									"  const found = arr.find(p => p.product_id === productAId);",
+									"  pm.test(\"List contains Product A\", () => pm.expect(!!found).to.be.true);",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8000/api/products/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"products",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get product by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 200 OK\", function () {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"const p = pm.response.json();",
+									"",
+									"pm.test(\"Correct name\", () => pm.expect(p.name).to.eql(\"Bouteille d'eau 1L\"));",
+									"// Vérif price (Decimal stringify)",
+									"pm.test(\"Price is 1.99\", () => pm.expect(Number(p.price)).to.eql(1.99));"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {}
+						},
+						"url": {
+							"raw": "localhost:8000/api/products/{{productA_id}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"products",
+								"{{productA_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
