@@ -94,6 +94,11 @@ jobs:
           newman run src/__tests__/integration/inventory.integration.postman_collection.json
           -e  env.tmp.json
 
+      - name: 🧪 Integration tests - Order
+        run: >
+          newman run src/__tests__/integration/order.integration.postman_collection.json
+          -e  env.tmp.json
+
       - name: 🧹 Stop API server
         if: always()               # exécute même si un test échoue
         run: |

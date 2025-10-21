@@ -1,0 +1,406 @@
+{
+	"info": {
+		"_postman_id": "de15ae3c-925d-445b-9f5b-ce59b047321d",
+		"name": "OrdersIntegration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20591382"
+	},
+	"item": [
+		{
+			"name": "CREATE",
+			"item": [
+				{
+					"name": "Create first order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", function() {",
+									"    pm.response.to.have.status(201)",
+									"});",
+									"const ord = pm.response.json();",
+									"pm.environment.set(\"order1_id\", ord.order_id);",
+									"pm.test(\"Order has 2 items\", () => pm.expect(ord.order_items.length).to.eql(2));",
+									"",
+									"// Vérif d'un item + données produit incluses",
+									"const ids = ord.order_items.map(i => i.product_id);",
+									"pm.test(\"Contains both products\", function() {",
+									"  pm.expect(ids).to.include(pm.environment.get(\"productA_id\"));",
+									"  pm.expect(ids).to.include(pm.environment.get(\"productB_id\"));",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"booking_id\": \"{{booking1_id}}\",\n  \"items\": [\n    { \"product_id\": \"{{productA_id}}\", \"quantity\": 2 },\n    { \"product_id\": \"{{productB_id}}\", \"quantity\": 1 }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/orders/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"orders",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create second order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", function() {",
+									"    pm.response.to.have.status(201)",
+									"});",
+									"const ord = pm.response.json();",
+									"pm.environment.set(\"order2_id\", ord.order_id);",
+									"pm.test(\"Order has 2 items\", () => pm.expect(ord.order_items.length).to.eql(2));",
+									"",
+									"// Vérif d'un item + données produit incluses",
+									"const ids = ord.order_items.map(i => i.product_id);",
+									"pm.test(\"Contains both products\", function() {",
+									"  pm.expect(ids).to.include(pm.environment.get(\"productA_id\"));",
+									"  pm.expect(ids).to.include(pm.environment.get(\"productB_id\"));",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"booking_id\": \"{{booking2_id}}\",\n  \"items\": [\n    { \"product_id\": \"{{productB_id}}\", \"quantity\": 5 },\n    { \"product_id\": \"{{productA_id}}\", \"quantity\": 1 }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/orders/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"orders",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"/**",
+							" * Pre-request script exécuté avant chaque requête du dossier.",
+							" * S'il n’existe pas de JWT admin, on fait un login et on le stocke.",
+							" */",
+							"if (!pm.environment.get(\"jwt_admin\")) {",
+							"  console.log(\"🔐 No jwt_admin found → performing admin login…\");",
+							"",
+							"  const loginReq = {",
+							"    url: \"localhost:8000/api/users/login\",",
+							"    method: \"POST\",",
+							"    header: { \"Content-Type\": \"application/json\" },",
+							"    body: {",
+							"      mode: \"raw\",",
+							"      raw: JSON.stringify({",
+							"        identifier: \"admin@example.com\",",
+							"        password:   \"s3curePassword1234\"",
+							"      })",
+							"    }",
+							"  };",
+							"",
+							"  /**",
+							"   * pm.sendRequest est ASYNCHRONE.",
+							"   * Tant que le callback n'est pas terminé, Postman met la requête courante “en pause”.",
+							"   * Une fois le token stocké, la requête courante reprendra avec l’Authorization dans ses headers.",
+							"   */",
+							"  pm.sendRequest(loginReq, (err, res) => {",
+							"    if (err) {",
+							"      console.error(\"❌ Admin login failed:\", err);",
+							"      // On peut interrompre la collection si nécessaire",
+							"      throw new Error(\"Admin login failed\");",
+							"    }",
+							"",
+							"    const token = res.json().token;",
+							"    if (!token) {",
+							"      throw new Error(\"No token in login response\");",
+							"    }",
+							"",
+							"    pm.environment.set(\"jwt_admin\", token);",
+							"    console.log(\"✅ jwt_admin saved to environment\");",
+							"  });",
+							"}"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "ADMIN ONLY",
+			"item": [
+				{
+					"name": "Get all orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 200 OK\", function () { ",
+									"    pm.response.to.have.status(200) ",
+									"});",
+									"",
+									"const arr = pm.response.json();",
+									"pm.test(\"Returns array\", function () {",
+									"    pm.expect(Array.isArray(arr)).to.be.true;",
+									"});",
+									"const orderId = pm.environment.get(\"order1_id\");",
+									"pm.test(\"Contains created order\", function () {",
+									"  pm.expect(arr.some(o => o.order_id === orderId)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/orders/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"orders",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get one order (by ID)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"✅ Status code - 200 OK\", function () { ",
+							"    pm.response.to.have.status(200) ",
+							"});",
+							"",
+							"const ord = pm.response.json();",
+							"pm.test(\"IDs match\",function () {",
+							"    pm.expect(ord.order_id).to.eql(pm.environment.get(\"order1_id\"))",
+							"});",
+							"",
+							"pm.test(\"Items have product data\",function() {",
+							"  const hasProductName = ord.order_items.some(i => i.products && i.products.name);",
+							"  pm.expect(hasProductName).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/orders/{{order1_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"orders",
+						"{{order1_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"✅ Status code - 200 OK\", function () { pm.response.to.have.status(200) });",
+							"",
+							"const ord = pm.response.json();",
+							"pm.test(\"Items replaced by single productB\", function() {",
+							"  pm.expect(ord.order_items.length).to.eql(1);",
+							"  pm.expect(ord.order_items[0].product_id).to.eql(pm.environment.get(\"productB_id\"));",
+							"  pm.expect(ord.order_items[0].quantity).to.eql(5);",
+							"});",
+							"pm.test(\"Status set\", function() { ",
+							"    pm.expect(ord.status).to.eql(\"received\")",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"status\": \"received\",\n  \"items\": [\n    { \"product_id\": \"{{productB_id}}\", \"quantity\": 5 }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/orders/{{order1_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"orders",
+						"{{order1_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code - 204 No Content\", function ()  {",
+							"  pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/orders/{{order1_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"orders",
+						"{{order1_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
