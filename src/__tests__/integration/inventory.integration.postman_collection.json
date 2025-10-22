@@ -308,7 +308,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"201 Created\", function() {",
+									"pm.test(\"Status code - 201 Created\", function() {",
 									"    pm.response.to.have.status(201)",
 									"});",
 									"",
@@ -343,7 +343,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -498,17 +499,18 @@
 									"  pm.response.to.have.status(200) ",
 									"});",
 									"",
+									"const arr = pm.response.json();",
 									"pm.test(\"Response is an array\", function() { ",
 									"  pm.expect(arr).to.be.an(\"array\")",
 									"});",
 									"",
 									"pm.test(\"Contains at least 3 inventories\", function () {",
-									"  const arr = pm.response.json();",
 									"  pm.expect(arr.length).to.be.at.least(3);",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
