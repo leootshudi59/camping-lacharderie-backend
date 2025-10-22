@@ -77,27 +77,34 @@ jobs:
           -e src/__tests__/integration/dev.postman_environment.json \
           --export-environment env.tmp.json
 
+      - name: 🧪 Integration tests - Events
+        run: |
+          newman run src/__tests__/integration/event.integration.postman_collection.json \
+          -e env.tmp.json \
+          --export-environment env.tmp.json
+
       - name: 🧪 Integration tests - Product
         run: |
           newman run src/__tests__/integration/product.integration.postman_collection.json \
-          -e  env.tmp.json
+          -e env.tmp.json \
           --export-environment env.tmp.json
 
       - name: 🧪 Integration tests - Booking
         run: >
           newman run src/__tests__/integration/booking.integration.postman_collection.json
-          -e  env.tmp.json   
+          -e env.tmp.json \
           --export-environment env.tmp.json
           
       - name: 🧪 Integration tests - Inventory
         run: >
-          newman run src/__tests__/integration/inventory.integration.postman_collection.json
-          -e  env.tmp.json
+          newman run src/__tests__/integration/inventory.integration.postman_collection.json \
+          -e env.tmp.json \
+          --export-environment env.tmp.json
 
       - name: 🧪 Integration tests - Order
         run: >
           newman run src/__tests__/integration/order.integration.postman_collection.json
-          -e  env.tmp.json
+          -e env.tmp.json
 
       - name: 🧹 Stop API server
         if: always()               # exécute même si un test échoue
