@@ -70,12 +70,11 @@ jobs:
         run: >
           newman run src/__tests__/integration/user.integration.postman_collection.json
           -e  src/__tests__/integration/dev.postman_environment.json \
-          --export-environment env.tmp.json
 
       - name: 🧪 Integration tests - Campsite
         run: |
           newman run src/__tests__/integration/campsite.integration.postman_collection.json \
-          -e env.tmp.json \
+          -e src/__tests__/integration/dev.postman_environment.json \
           --export-environment env.tmp.json
 
       - name: 🧪 Integration tests - Events
