@@ -69,36 +69,36 @@ jobs:
       - name: 🧪 Integration tests - Users
         run: >
           newman run src/__tests__/integration/user.integration.postman_collection.json
-          -e  src/__tests__/integration/dev.postman_environment.json \
+          -e  src/__tests__/integration/dev.postman_environment.json
 
       - name: 🧪 Integration tests - Campsite
-        run: |
-          newman run src/__tests__/integration/campsite.integration.postman_collection.json \
-          -e src/__tests__/integration/dev.postman_environment.json \
-          --export-environment env.tmp.json
-
-      - name: 🧪 Integration tests - Events
-        run: |
-          newman run src/__tests__/integration/event.integration.postman_collection.json \
-          -e env.tmp.json \
+        run: >
+          newman run src/__tests__/integration/campsite.integration.postman_collection.json
+          -e src/__tests__/integration/dev.postman_environment.json
           --export-environment env.tmp.json
 
       - name: 🧪 Integration tests - Product
-        run: |
-          newman run src/__tests__/integration/product.integration.postman_collection.json \
-          -e env.tmp.json \
+        run: >
+          newman run src/__tests__/integration/product.integration.postman_collection.json
+          -e env.tmp.json
           --export-environment env.tmp.json
 
       - name: 🧪 Integration tests - Booking
         run: >
           newman run src/__tests__/integration/booking.integration.postman_collection.json
-          -e env.tmp.json \
+          -e env.tmp.json
           --export-environment env.tmp.json
           
       - name: 🧪 Integration tests - Inventory
         run: >
-          newman run src/__tests__/integration/inventory.integration.postman_collection.json \
-          -e env.tmp.json \
+          newman run src/__tests__/integration/inventory.integration.postman_collection.json
+          -e env.tmp.json
+          --export-environment env.tmp.json
+
+      - name: 🧪 Integration tests - Events
+        run: >
+          newman run src/__tests__/integration/event.integration.postman_collection.json
+          -e env.tmp.json
           --export-environment env.tmp.json
 
       - name: 🧪 Integration tests - Order
