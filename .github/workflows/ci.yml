@@ -80,7 +80,7 @@ jobs:
       - name: 🧪 Integration tests - Product
         run: |
           newman run src/__tests__/integration/product.integration.postman_collection.json \
-          -e src/__tests__/integration/dev.postman_environment.json \
+          -e  env.tmp.json
           --export-environment env.tmp.json
 
       - name: 🧪 Integration tests - Booking

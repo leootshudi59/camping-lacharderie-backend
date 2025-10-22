@@ -1,0 +1,469 @@
+{
+	"info": {
+		"_postman_id": "8c714eb8-34d3-49a6-9f00-56519138d392",
+		"name": "EventsIntegration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20591382"
+	},
+	"item": [
+		{
+			"name": "CREATE",
+			"item": [
+				{
+					"name": "Create event 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const ev = pm.response.json();",
+									"pm.environment.set(\"event1_id\", ev.event_id);",
+									"pm.test(\"Fields ok\", function () {",
+									"  pm.expect(ev.title).to.eql(\"Cinéma plein air\");",
+									"  pm.expect(new Date(ev.start_datetime)).to.be.a(\"date\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Cinéma plein air\",\n  \"description\": \"Projection familiale\",\n  \"start_datetime\": \"2030-07-05T20:30:00.000Z\",\n  \"end_datetime\":   \"2030-07-05T22:30:00.000Z\",\n  \"location\": \"Place centrale\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/events/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"events",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create event 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const ev = pm.response.json();",
+									"pm.environment.set(\"event2_id\", ev.event_id);",
+									"pm.test(\"Fields ok\", function www () {",
+									"  pm.expect(ev.title).to.eql(\"Tournoi de pétanque\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Tournoi de pétanque\",\n  \"description\": \"Doublette\",\n  \"start_datetime\": \"2030-08-10T09:00:00.000Z\",\n  \"end_datetime\":   \"2030-08-10T12:00:00.000Z\",\n  \"location\": \"Terrain Nord\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/events/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"events",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FAIL - Add invalid dates event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code - 400 Bad Request\", function () {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Bad Dates\",\n  \"start_datetime\": \"2030-07-01T20:00:00.000Z\",\n  \"end_datetime\":   \"2030-07-01T19:00:00.000Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/events/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"events",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"/**",
+							" * Pre-request script exécuté avant chaque requête du dossier.",
+							" * S'il n’existe pas de JWT admin, on fait un login et on le stocke.",
+							" */",
+							"if (!pm.environment.get(\"jwt_admin\")) {",
+							"  console.log(\"🔐 No jwt_admin found → performing admin login…\");",
+							"",
+							"  const loginReq = {",
+							"    url: \"localhost:8000/api/users/login\",",
+							"    method: \"POST\",",
+							"    header: { \"Content-Type\": \"application/json\" },",
+							"    body: {",
+							"      mode: \"raw\",",
+							"      raw: JSON.stringify({",
+							"        identifier: \"admin@example.com\",",
+							"        password:   \"s3curePassword1234\"",
+							"      })",
+							"    }",
+							"  };",
+							"",
+							"  /**",
+							"   * pm.sendRequest est ASYNCHRONE.",
+							"   * Tant que le callback n'est pas terminé, Postman met la requête courante “en pause”.",
+							"   * Une fois le token stocké, la requête courante reprendra avec l’Authorization dans ses headers.",
+							"   */",
+							"  pm.sendRequest(loginReq, (err, res) => {",
+							"    if (err) {",
+							"      console.error(\"❌ Admin login failed:\", err);",
+							"      // On peut interrompre la collection si nécessaire",
+							"      throw new Error(\"Admin login failed\");",
+							"    }",
+							"",
+							"    const token = res.json().token;",
+							"    if (!token) {",
+							"      throw new Error(\"No token in login response\");",
+							"    }",
+							"",
+							"    pm.environment.set(\"jwt_admin\", token);",
+							"    console.log(\"✅ jwt_admin saved to environment\");",
+							"  });",
+							"}"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "GET",
+			"item": [
+				{
+					"name": "Get all events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 200 OK\", function() {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"const arr = pm.response.json();",
+									"",
+									"pm.test(\"Returns an array\", function() {",
+									"    pm.expect(Array.isArray(arr)).to.be.true",
+									"});",
+									"pm.test(\"Has at least 1 product\", () => pm.expect(arr.length).to.be.above(0));",
+									"pm.test(\"Contains event1\", function() {",
+									"  const id = pm.environment.get(\"event1_id\");",
+									"  pm.expect(arr.some(e => e.event_id === id)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8000/api/events/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"events",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get events by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 200 OK\", function () {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"const p = pm.response.json();",
+									"",
+									"pm.test(\"Correct title\", function() {pm.expect(p.title).to.eql(\"Cinéma plein air\")});",
+									"pm.test(\"Dates are ISO\", function() {",
+									"  pm.expect(new Date(p.start_datetime)).to.be.a(\"date\");",
+									"  pm.expect(new Date(p.end_datetime)).to.be.a(\"date\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {}
+						},
+						"url": {
+							"raw": "localhost:8000/api/events/{{event1_id}}",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"events",
+								"{{event1_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update Events",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"✅ Status code - 200 OK\", function () {",
+							"  pm.response.to.have.status(200);",
+							"})",
+							"pm.test(\"Title updated\", function () {",
+							"  pm.expect(pm.response.json().title).to.eql(\"Cinéma en plein air (version longue)\");",
+							"});",
+							"pm.test(\"Location updated\", function () {",
+							"  pm.expect(pm.response.json().location).to.eql(\"Prairie\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Cinéma en plein air (version longue)\",\n  \"location\": \"Prairie\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/events/{{event1_id}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"events",
+						"{{event1_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete event",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204 No Content\", function () { ",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_admin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/events/{{event2_id}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"events",
+						"{{event2_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
