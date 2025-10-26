@@ -61,4 +61,9 @@ export class PrismaBookingRepository implements IBookingRepository {
     const cs = await prisma.campsite.findUnique({ where: { campsite_id: id } });
     return !!cs;
   }
+
+  async bookingNumberExists(number: string) {
+    const b = await prisma.bookings.findUnique({ where: { booking_number: number } });
+    return !!b;
+  }
 }

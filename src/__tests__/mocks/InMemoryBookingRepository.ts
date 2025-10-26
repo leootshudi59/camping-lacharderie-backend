@@ -70,4 +70,10 @@ export class InMemoryBookingRepository implements IBookingRepository {
   campsiteExists(id: string) {
     return Promise.resolve(this.campsites.has(id));
   }
+  
+  async bookingNumberExists(number: string): Promise<boolean> {
+    return [...this.store.values()].some(
+      b => !b.delete_date && b.booking_number === number
+    );
+  }
 }

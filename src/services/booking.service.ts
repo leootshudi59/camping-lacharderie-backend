@@ -25,6 +25,15 @@ export class BookingService {
         if (dto.campsite_id && !(await this.bookingRepo.campsiteExists(dto.campsite_id))) {
             throw new Error('Campsite not found');
         }
+        if (!dto.booking_number) {
+            throw new Error('Booking number is required');
+        }
+        if (dto.booking_number.length > 10 || dto.booking_number.length < 1) {
+            throw new Error('Booking number must be between 1 and 10 characters long');
+        }
+        if (await this.bookingRepo.bookingNumberExists(dto.booking_number)) {
+            throw new Error('Booking number already exists');
+        }
 
         if (dto.campsite_id) {
             const overlaps = await this.bookingRepo.findOverlapping(
