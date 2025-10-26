@@ -192,7 +192,7 @@
 									"const ev = pm.response.json();",
 									"pm.environment.set(\"event3_id\", ev.event_id);",
 									"pm.test(\"Fields ok\", function () {",
-									"  pm.expect(ev.title).to.eql(\"Soirée barbecue\");",
+									"  pm.expect(ev.title).to.eql(\"Tournoi de pétanque\");",
 									"});"
 								],
 								"type": "text/javascript",
