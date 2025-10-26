@@ -7,7 +7,7 @@ export const CreateEventSchema = z.object({
   start_datetime:   z.string().datetime(),      // ISO 8601
   end_datetime:     z.string().datetime(),
   location: z.string().max(256).optional(),
-  status:   z.string().optional(), // "draft" | "published" | "cancelled"...
+  // status:   z.string().optional(), // "draft" | "published" | "cancelled"...
   image:    z.instanceof(Buffer).optional(),
 }).refine((data) => data.end_datetime >= data.start_datetime, {
   message: 'end_datetime must be greater than or equal to start_datetime',
