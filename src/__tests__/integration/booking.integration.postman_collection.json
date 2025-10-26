@@ -16,7 +16,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code - 201 Created\", () => pm.response.to.have.status(201));",
+									"pm.test(\"✅ Status code - 201 Created\", () => pm.response.to.have.status(201));",
 									"const id = pm.response.json().booking_id;",
 									"pm.environment.set('booking1_id', id);"
 								],
@@ -67,9 +67,12 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code - 201 Created\", () => pm.response.to.have.status(201));",
+									"pm.test(\"✅ Status code - 201 Created\", () => pm.response.to.have.status(201));",
 									"const id = pm.response.json().booking_id;",
-									"pm.environment.set('booking2_id', id);"
+									"pm.environment.set('booking2_id', id);",
+									"pm.environment.set('guest1_booking_id', pm.response.json().booking_id)",
+									"pm.environment.set('guest1_res_name', pm.response.json().res_name);",
+									"pm.environment.set('guest1_booking_number', pm.response.json().booking_number);"
 								],
 								"type": "text/javascript",
 								"packages": {},

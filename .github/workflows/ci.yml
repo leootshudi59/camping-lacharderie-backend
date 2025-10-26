@@ -100,6 +100,12 @@ jobs:
           newman run src/__tests__/integration/inventory.integration.postman_collection.json
           -e env.tmp.json
           --export-environment env.tmp.json
+      
+      - name: 🧪 Integration tests - Guest
+        run: >
+          newman run src/__tests__/integration/guest.integration.postman_collection.json
+          -e env.tmp.json
+          --export-environment env.tmp.json
 
       - name: 🧪 Integration tests - Order
         run: >
