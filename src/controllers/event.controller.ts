@@ -48,8 +48,13 @@ export const createEvent = async (req: Request, res: Response) => {
       location:    req.body.location,
       image:       undefined as Buffer | undefined,
     };
-    if (req.body.image !== '') {
-      reqBody = { ...reqBody, image: req.body.image };
+    
+    if (typeof req.body.image === 'string' && req.body.image.trim().length > 0) {
+      // Supporte "data:*;base64,...." et base64 pur
+      const base64 = req.body.image.includes('base64,')
+        ? req.body.image.split('base64,')[1]
+        : req.body.image;
+      reqBody.image = Buffer.from(base64, 'base64');
     }
 
     const dto = CreateEventSchema.parse(reqBody);
