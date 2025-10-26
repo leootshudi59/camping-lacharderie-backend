@@ -46,7 +46,6 @@ export const createEvent = async (req: Request, res: Response) => {
       start_datetime:    req.body.start_datetime,
       end_datetime:      req.body.end_datetime,
       location:    req.body.location,
-      status:      req.body.status,
       image:       undefined as Buffer | undefined,
     };
     if (req.body.image !== '') {
