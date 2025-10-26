@@ -66,4 +66,15 @@ export class PrismaBookingRepository implements IBookingRepository {
     const b = await prisma.bookings.findUnique({ where: { booking_number: number } });
     return !!b;
   }
+  
+  async findByNameAndNumber(res_name: string, booking_number: string) {
+    const b = await prisma.bookings.findUnique({
+      where: { booking_number }, // utilise l'index unique
+      include: { campsite: { select: { name: true } } },
+    });
+    if (!b) return null;
+    if (b.delete_date) return null;
+    if ((b.res_name ?? '').trim().toLowerCase() !== res_name.trim().toLowerCase()) return null;
+    return b;
+  }
 }

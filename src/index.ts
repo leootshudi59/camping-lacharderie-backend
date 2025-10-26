@@ -12,6 +12,7 @@ import productRoutes from "./routes/product.routes";
 import orderRoutes from "./routes/order.routes";
 import eventRoutes from "./routes/event.routes";
 import { createUser, loginUser } from './controllers/user.controller';
+import guestRoutes from './routes/guest.routes';
 dotenv.config();
 
 const app = express();
@@ -41,6 +42,7 @@ app.use('/api/inventories', authenticateJWT, inventoryRoutes);
 app.use('/api/products', authenticateJWT, productRoutes);
 app.use('/api/orders', authenticateJWT, orderRoutes);
 app.use('/api/events', authenticateJWT, eventRoutes);
+app.use('/api/guest', guestRoutes); 
 
 // ----------- 404 Handler -----------
 app.use((_req, res, _next) => {
