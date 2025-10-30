@@ -76,4 +76,13 @@ export class InMemoryBookingRepository implements IBookingRepository {
       b => !b.delete_date && b.booking_number === number
     );
   }
+  
+  async findByNameAndNumber(res_name: string, booking_number: string) {
+    const r = [...this.store.values()].find(b =>
+      !b.delete_date &&
+      (b.booking_number === booking_number) &&
+      (b.res_name?.trim().toLowerCase() === res_name.trim().toLowerCase())
+    );
+    return r ? this.attachCampsite(r) : null;
+  }
 }

@@ -28,7 +28,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -38,7 +39,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -76,7 +78,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 201\", function () {",
+									"pm.test(\"Status code - 201 Created\", function () {",
 									"    pm.response.to.have.status(201);",
 									"});",
 									"",
@@ -223,7 +225,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 201\", function () {",
+									"pm.test(\"Status code - 201 Created\", function () {",
 									"    pm.response.to.have.status(201);",
 									"});",
 									"",
@@ -268,6 +270,68 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Create Second Admin User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Body has a user_id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.user_id).to.exist;",
+									"    // Stocker l'id du user pour la suite des tests (GET/PUT/DELETE)",
+									"    pm.environment.set(\"user_admin_id\", jsonData.user_id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Test\",\n  \"last_name\": \"Admin\",\n  \"email\": \"test@example.com\",\n  \"phone\": \"0622334455\",\n  \"password\": \"t3st!ng\",\n  \"role\": 1,\n  \"locale\": \"fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/users/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -281,7 +345,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"pm.test(\"Status code - 200 OK\", function () {",
 									"  pm.response.to.have.status(200);",
 									"});",
 									"pm.test(\"User returned without password_hash\", function () {",
@@ -295,7 +359,8 @@
 									"pm.environment.set('user1_id', json.user_id);"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -305,7 +370,8 @@
 							{
 								"key": "Authorization",
 								"value": "Bearer {{jwt}}",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"body": {
@@ -339,7 +405,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"pm.test(\"Status code - 200 OK\", function () {",
 									"  pm.response.to.have.status(200);",
 									"});",
 									"pm.test(\"User returned without password_hash\", function () {",
@@ -353,19 +419,14 @@
 									"pm.environment.set('user_admin_id', json.user_id);"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{jwt}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"identifier\": \"admin@example.com\",\n  \"password\": \"s3curePassword1234\"\n}",
@@ -397,7 +458,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 401\", function () {",
+									"pm.test(\"Status code - 401 Unauthorized\", function () {",
 									"  pm.response.to.have.status(401);",
 									"});",
 									"pm.test(\"Error message invalid credentials\", function () {",
@@ -406,7 +467,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -654,7 +716,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200 (admin)\", function () {",
+									"pm.test(\"Status code - 200 (admin)\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"pm.test(\"User with correct phone is returned (admin)\", function () {",
@@ -768,12 +830,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 204 (self delete)\", function () {",
+									"pm.test(\"Status code - 204 no data (self delete)\", function () {",
 									"    pm.response.to.have.status(204);",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -818,7 +881,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 403 (user can't delete another)\", function () {",
+									"pm.test(\"Status code - 403 Forbidden (user can't delete another)\", function () {",
 									"    pm.response.to.have.status(403);",
 									"});",
 									"pm.test(\"Forbidden error message\", function () {",
@@ -828,7 +891,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -904,7 +968,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
+							"pm.test(\"Status code - 200 OK\", function () {",
 							"  pm.response.to.have.status(200);",
 							"});",
 							"pm.test(\"Last name is Updated\", function () {",
@@ -913,7 +977,8 @@
 							"});"
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				},
 				{
@@ -923,7 +988,8 @@
 							""
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
