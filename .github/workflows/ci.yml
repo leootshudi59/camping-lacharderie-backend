@@ -50,7 +50,7 @@ jobs:
 
       # 🟦 TESTS D'INTÉGRATION : uniquement sur dev
       - name: 🌍 Set environment variables from GitHub secrets
-        run: echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> $GITHUB_ENV && echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV && echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> $GITHUB_ENV
+        run: echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> $GITHUB_ENV && echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV && echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> $GITHUB_ENV && echo "JWT_GUEST_SECRET=${{ secrets.JWT_GUEST_SECRET }}" >> $GITHUB_ENV
 
       - name: 🏗️ Build app
         if: github.ref == 'refs/heads/dev'
