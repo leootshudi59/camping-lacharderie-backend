@@ -35,7 +35,11 @@ export const guestLogin = async (req: Request, res: Response): Promise<any> => {
       booking: {
         booking_id: booking.booking_id,
         campsite_id: booking.campsite_id,
+        email: booking.email,
+        phone: booking.phone,
+        booking_number: booking.booking_number,
         res_name: booking.res_name,
+        inventory_id: booking.inventory_id,
         start_date: booking.start_date,
         end_date: booking.end_date,
         campsite_name: (booking as any)?.campsite?.name ?? null,
