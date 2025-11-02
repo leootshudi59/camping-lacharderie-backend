@@ -22,4 +22,16 @@ export interface IBookingRepository {
    * @param id 
    */
   campsiteExists(id: string): Promise<boolean>;
+  /**
+   * Checks if the booking number exists in the bookings table
+   * @param number 
+   */
+  bookingNumberExists(number: string): Promise<boolean>;
+
+  /**
+   * Returns the booking with the given name and number
+   * @param res_name 
+   * @param booking_number 
+   */
+  findByNameAndNumber(res_name: string, booking_number: string): Promise<BookingWithCampsite | null>;
 }

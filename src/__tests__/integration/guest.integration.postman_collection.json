@@ -1,0 +1,304 @@
+{
+	"info": {
+		"_postman_id": "b48fe974-e9c5-4383-b950-3d8b6c6667a0",
+		"name": "GuestIntegration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20591382"
+	},
+	"item": [
+		{
+			"name": "LOGIN",
+			"item": [
+				{
+					"name": "Login guest 1 (success)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 200 OK\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.environment.set('guest1_jwt', pm.response.json().token);",
+									"",
+									"pm.test(\"Contains token\", function () {",
+									"  pm.expect(pm.response.json().token).to.be.a('string').and.not.empty;",
+									"});",
+									"",
+									"const idFromEnv = pm.environment.get('booking2_id') || pm.environment.get('guest1_booking_id');",
+									"pm.test(\"Booking ID matches\", function () {",
+									"    pm.expect(pm.response.json().booking.booking_id).to.eql(idFromEnv);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"res_name\": \"{{guest1_res_name}}\",\n  \"booking_number\": \"{{guest1_booking_number}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/guest/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"guest",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login guest 2 (success)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 200 OK\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.environment.set('guest2_jwt', pm.response.json().token);",
+									"",
+									"pm.test(\"Contains token\", function () {",
+									"  pm.expect(pm.response.json().token).to.be.a('string').and.not.empty;",
+									"});",
+									"",
+									"const idFromEnv = pm.environment.get('booking3_id') || pm.environment.get('guest2_booking_id');",
+									"pm.test(\"Booking ID matches\", function () {",
+									"    pm.expect(pm.response.json().booking.booking_id).to.eql(idFromEnv);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"res_name\": \"{{guest2_res_name}}\",\n  \"booking_number\": \"{{guest2_booking_number}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/guest/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"guest",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FAIL Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code - 401 Unauthorized\", function () {",
+									"  pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"res_name\": \"{{guest1_res_name}}\",\n  \"booking_number\": \"WRONG999\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/guest/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"guest",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get guest's booking (by ID)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"✅ Status code - 200 OK\", function () { ",
+							"    pm.response.to.have.status(200) ",
+							"});",
+							"const idFromEnv = pm.environment.get('booking2_id') || pm.environment.get('guest1_booking_id');",
+							"",
+							"pm.test(\"Correct res_name\", function () {",
+							"  pm.expect(pm.response.json().res_name).to.eql('Smith');",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{guest1_jwt}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/guest/bookings/{{booking2_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"guest",
+						"bookings",
+						"{{booking2_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FAIL Unauthorized - Get guest's booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code - 401 Unauthorized\", function () { ",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{guest1_jwt}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/guest/bookings/{{booking2_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"guest",
+						"bookings",
+						"{{booking2_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FAIL Unauthorized - Get other guest's booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code - 403 Forbidden\", function () { ",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{guest1_jwt}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/guest/bookings/{{booking3_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"guest",
+						"bookings",
+						"{{booking3_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

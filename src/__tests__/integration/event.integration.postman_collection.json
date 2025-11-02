@@ -123,6 +123,118 @@
 					"response": []
 				},
 				{
+					"name": "Create event 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const ev = pm.response.json();",
+									"pm.environment.set(\"event4_id\", ev.event_id);",
+									"pm.test(\"Fields ok\", function () {",
+									"  pm.expect(ev.title).to.eql(\"Soirée barbecue\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Soirée barbecue\",\n  \"description\": \"Des bonnes grillades\",\n  \"start_datetime\": \"2025-10-10T20:00:00.000Z\",\n  \"end_datetime\":   \"2025-11-10T23:59:00.000Z\",\n  \"location\": \"Espace commun\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/events/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"events",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create event 4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const ev = pm.response.json();",
+									"pm.environment.set(\"event3_id\", ev.event_id);",
+									"pm.test(\"Fields ok\", function () {",
+									"  pm.expect(ev.title).to.eql(\"Tournoi de pétanque\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Tournoi de pétanque\",\n  \"description\": \"Tous ensemble\",\n  \"start_datetime\": \"2025-10-10T19:00:00.000Z\",\n  \"end_datetime\":   \"2025-11-10T20:00:00.000Z\",\n  \"location\": \"Terrain de pétanque\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/events/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"events",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "FAIL - Add invalid dates event",
 					"event": [
 						{
@@ -315,9 +427,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -327,10 +436,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "file",
-							"file": {}
-						},
 						"url": {
 							"raw": "localhost:8000/api/events/{{event1_id}}",
 							"host": [

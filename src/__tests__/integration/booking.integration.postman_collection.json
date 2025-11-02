@@ -16,12 +16,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code 201 Created\", () => pm.response.to.have.status(201));",
+									"pm.test(\"✅ Status code - 201 Created\", () => pm.response.to.have.status(201));",
 									"const id = pm.response.json().booking_id;",
 									"pm.environment.set('booking1_id', id);"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -36,7 +37,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"email\": \"guest1@example.com\",\n  \"start_date\": \"2025-08-01T14:00:00Z\",\n  \"end_date\":   \"2025-08-05T10:00:00Z\",\n  \"res_name\":   \"Doe\"\n}",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"email\": \"guest1@example.com\",\n  \"start_date\": \"2025-09-01T14:00:00Z\",\n  \"end_date\":   \"2025-09-05T10:00:00Z\",\n  \"res_name\":   \"Doe\",\n  \"booking_number\": \"C0001\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -66,12 +67,16 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code 201 Created\", () => pm.response.to.have.status(201));",
+									"pm.test(\"✅ Status code - 201 Created\", () => pm.response.to.have.status(201));",
 									"const id = pm.response.json().booking_id;",
-									"pm.environment.set('booking2_id', id);"
+									"pm.environment.set('booking2_id', id);",
+									"pm.environment.set('guest1_booking_id', pm.response.json().booking_id)",
+									"pm.environment.set('guest1_res_name', pm.response.json().res_name);",
+									"pm.environment.set('guest1_booking_number', pm.response.json().booking_number);"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -86,7 +91,61 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"phone\": \"0700000001\",\n  \"start_date\": \"2025-08-05T10:00:00Z\",  // = end of booking1\n  \"end_date\":   \"2025-08-08T10:00:00Z\",\n  \"res_name\":   \"Smith\"\n}",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"phone\": \"0700000001\",\n  \"start_date\": \"2025-09-05T10:00:00Z\",  // = end of booking1\n  \"end_date\":   \"2025-09-08T10:00:00Z\",\n  \"res_name\":   \"Smith\",\n  \"booking_number\": \"C0002\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/bookings/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"bookings",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create third booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", () => pm.response.to.have.status(201));",
+									"const id = pm.response.json().booking_id;",
+									"pm.environment.set('booking3_id', id);",
+									"pm.environment.set('guest2_booking_id', pm.response.json().booking_id)",
+									"pm.environment.set('guest2_res_name', pm.response.json().res_name);",
+									"pm.environment.set('guest2_booking_number', pm.response.json().booking_number);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"phone\": \"0700000001\",\n  \"start_date\": \"2025-09-09T13:00:00Z\",\n  \"end_date\":   \"2025-09-23T11:00:00Z\",\n  \"res_name\":   \"Clinton\",\n  \"booking_number\": \"C0003\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -121,7 +180,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -136,7 +196,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"email\": \"overlap@example.com\",\n  \"start_date\": \"2025-08-03T12:00:00Z\",\n  \"end_date\":   \"2025-08-04T10:00:00Z\",\n  \"res_name\":   \"Overlap\"\n}"
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"email\": \"overlap@example.com\",\n  \"start_date\": \"2025-09-03T12:00:00Z\",\n  \"end_date\":   \"2025-09-04T10:00:00Z\",\n  \"res_name\":   \"Overlap\",\n  \"booking_number\": \"O0003\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "http://localhost:8000/api/bookings/",
@@ -166,7 +231,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -181,7 +247,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"start_date\": \"2025-09-01T12:00:00Z\",\n  \"end_date\":   \"2025-09-03T10:00:00Z\",\n  \"res_name\":   \"NoContact\"\n}",
+							"raw": "{\n  \"campsite_id\": \"{{campsite1_id}}\",\n  \"start_date\": \"2025-10-01T12:00:00Z\",\n  \"end_date\":   \"2025-10-03T10:00:00Z\",\n  \"res_name\":   \"NoContact\",\n  \"booking_number\": \"N0001\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -216,7 +282,10 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code - 200 OK\", function () { pm.response.to.have.status(200) });",
+									"pm.test(\"Status code - 200 OK\", function () { ",
+									"    pm.response.to.have.status(200) ",
+									"});",
+									"",
 									"pm.test(\"Contains at least 2 bookings\", function () {",
 									"  const arr = pm.response.json();",
 									"  pm.expect(arr.length).to.be.at.least(2);",
@@ -261,7 +330,10 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code - 200 OK\", function () { pm.response.to.have.status(200) });",
+							"pm.test(\"Status code - 200 OK\", function () { ",
+							"    pm.response.to.have.status(200) ",
+							"});",
+							"",
 							"pm.test(\"Correct res_name\", function () {",
 							"  pm.expect(pm.response.json().res_name).to.eql('Doe');",
 							"})"

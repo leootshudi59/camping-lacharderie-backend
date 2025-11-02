@@ -17,6 +17,7 @@ model bookings {
   phone                                          String?       @db.VarChar(20)
   start_date                                     DateTime      @db.Timestamptz(6)
   end_date                                       DateTime      @db.Timestamptz(6)
+  booking_number                                 String?       @unique @db.VarChar(10)
   res_name                                       String        @db.VarChar(50)
   inventory_id                                   String?       @db.Uuid
   delete_date                                    DateTime?     @db.Timestamptz(6)

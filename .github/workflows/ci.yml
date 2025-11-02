@@ -50,7 +50,7 @@ jobs:
 
       # 🟦 TESTS D'INTÉGRATION : uniquement sur dev
       - name: 🌍 Set environment variables from GitHub secrets
-        run: echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> $GITHUB_ENV && echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV && echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> $GITHUB_ENV
+        run: echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> $GITHUB_ENV && echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV && echo "JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}" >> $GITHUB_ENV && echo "JWT_GUEST_SECRET=${{ secrets.JWT_GUEST_SECRET }}" >> $GITHUB_ENV
 
       - name: 🏗️ Build app
         if: github.ref == 'refs/heads/dev'
@@ -71,10 +71,16 @@ jobs:
           newman run src/__tests__/integration/user.integration.postman_collection.json
           -e  src/__tests__/integration/dev.postman_environment.json
 
+      - name: 🧪 Integration tests - Events
+        run: >
+          newman run src/__tests__/integration/event.integration.postman_collection.json
+          -e src/__tests__/integration/dev.postman_environment.json
+          --export-environment env.tmp.json
+
       - name: 🧪 Integration tests - Campsite
         run: >
           newman run src/__tests__/integration/campsite.integration.postman_collection.json
-          -e src/__tests__/integration/dev.postman_environment.json
+          -e env.tmp.json
           --export-environment env.tmp.json
 
       - name: 🧪 Integration tests - Product
@@ -94,10 +100,10 @@ jobs:
           newman run src/__tests__/integration/inventory.integration.postman_collection.json
           -e env.tmp.json
           --export-environment env.tmp.json
-
-      - name: 🧪 Integration tests - Events
+      
+      - name: 🧪 Integration tests - Guest
         run: >
-          newman run src/__tests__/integration/event.integration.postman_collection.json
+          newman run src/__tests__/integration/guest.integration.postman_collection.json
           -e env.tmp.json
           --export-environment env.tmp.json
 
