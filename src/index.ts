@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import cors from 'cors'; // Autorise CORS pour le frontend
-import helmet from 'helmet'; // Sécurité HTTP
+import cors from 'cors'; // Enable CORS for the frontend
+import helmet from 'helmet'; // Security HTTP headers
 
 import { authenticateJWT } from './middlewares/authenticateJWT';
 import userRoutes from './routes/user.routes';
@@ -17,13 +17,14 @@ dotenv.config();
 
 const app = express();
 
-// ----------- Middlewares globaux -----------
+app.set('trust proxy', 1); // or: app.set('trust proxy', true);
+// ----------- Global middlewares -----------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors()); // Permet les appels cross-origin
-app.use(helmet()); // Headers de sécurité
+app.use(cors()); // Enables cross-origin requests
+app.use(helmet()); // Security headers
 
-// ----------- Routes publiques -----------
+// ----------- Public routes -----------
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the API' });
 });
@@ -32,7 +33,7 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// ----------- Routes privées/protégées -----------
+// ----------- Private routes -----------
 app.post('/api/users/login', loginUser);
 app.post('/api/users', createUser);
 app.use('/api/users', authenticateJWT, userRoutes); 
@@ -51,11 +52,11 @@ app.use((_req, res, _next) => {
 
 // ----------- Global Error Handler -----------
 app.use((err: Error, _req: any, res: any, _next: any) => {
-  // Améliore la gestion des erreurs (en prod, n’expose pas le stack trace)
+  // Improves error handling (in production, does not expose the stack trace)
   res.status(500).json({ error: err.message || 'Internal Server Error' });
 });
 
-// ----------- Démarrage du serveur -----------
+// ----------- Server start -----------
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
