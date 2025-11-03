@@ -13,6 +13,7 @@ export const guestLogin = async (req: Request, res: Response): Promise<any> => {
     if (DEBUG_MODE) {
       console.log("\n=====  loginGuest  =====");
       console.log("received body: " + req.body);
+      console.log('received headers:', req.headers);
     }
     const dto = LoginGuestSchema.parse(req.body);
     const booking = await guestAuth.authenticate(dto.res_name, dto.booking_number);
