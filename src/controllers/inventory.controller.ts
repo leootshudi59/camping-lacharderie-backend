@@ -38,8 +38,21 @@ export const createInventory = async (req: Request, res: Response) => {
     if (DEBUG_MODE) {
       console.log("\n=====  createInventory  =====");
       console.log("received body: ", req.body);
+      console.log("received params: ", req.params);
     }
-    const dto = CreateInventorySchema.parse(req.body);
+
+    // if we are on route /bookings/:booking_id/inventories
+    // we need to merge booking_id from params with body
+    const merged = {
+      ...req.body,
+      ...(req.params.booking_id ? { booking_id: req.params.booking_id } : {}),
+    };
+
+    // if user is guest, we need to remove campsite_id from merged to prevent guest from creating an inventory for a campsite
+    if ((req as any).guest) {
+      delete (merged as any).campsite_id;
+    }
+    const dto = CreateInventorySchema.parse(merged);
     const inv = await service.create(dto);
     res.status(201).json(inv);
   } catch (err: any) {

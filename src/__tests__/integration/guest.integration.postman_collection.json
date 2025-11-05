@@ -120,6 +120,61 @@
 					"response": []
 				},
 				{
+					"name": "Login guest 3 (sucess)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 200 OK\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.environment.set('guest3_jwt', pm.response.json().token);",
+									"",
+									"pm.test(\"Contains token\", function () {",
+									"  pm.expect(pm.response.json().token).to.be.a('string').and.not.empty;",
+									"});",
+									"",
+									"const idFromEnv = pm.environment.get('booking4_id') || pm.environment.get('guest3_booking_id');",
+									"pm.test(\"Booking ID matches\", function () {",
+									"    pm.expect(pm.response.json().booking.booking_id).to.eql(idFromEnv);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"res_name\": \"{{guest3_res_name}}\",\n  \"booking_number\": \"{{guest3_booking_number}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/guest/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"guest",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "FAIL Login",
 					"event": [
 						{
@@ -208,6 +263,138 @@
 						"guest",
 						"bookings",
 						"{{booking2_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Inventory (success)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"✅ Status code - 201 Created\", function() {",
+							"    pm.response.to.have.status(201)",
+							"});",
+							"",
+							"const jsonData = pm.response.json();",
+							"",
+							"pm.environment.set(\"guest_inv\", jsonData.inventory_id);",
+							"",
+							"// (Optionnel) Vérifier le side-effect: bookings.inventory_id == created",
+							"const token = pm.environment.get(\"guest3_jwt\");",
+							"pm.sendRequest({",
+							"  url: `http://localhost:8000/api/guest/bookings/${pm.environment.get(\"booking4_id\")}`,",
+							"  method: \"GET\",",
+							"  header: { Authorization: `Bearer ${token}` }",
+							"}, (err, res) => {",
+							"  pm.test(\"Booking GET succeeds\", () => {",
+							"    pm.expect(err).to.be.null;",
+							"    pm.expect(res).to.have.property(\"code\", 200);",
+							"  });",
+							"  if (!err && res.code === 200) {",
+							"    const b = res.json();",
+							"    pm.test(\"Booking's last inventory is the created one\", () => {",
+							"      pm.expect(b.inventory_id).to.eql(pm.environment.get(\"guest_inv\"));",
+							"    });",
+							"  }",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{guest3_jwt}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"type\": \"arrival\",\n  \"comment\": \"Check-in\",\n  \"items\": [\n    { \"name\": \"Fourchettes\", \"quantity\": 6 },\n    { \"name\": \"Chaises\",  \"quantity\": 4 },\n    { \"name\": \"Micro-ondes\",  \"quantity\": 1 }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/guest/bookings/{{booking4_id}}/inventories/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"guest",
+						"bookings",
+						"{{booking4_id}}",
+						"inventories",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FAIL Unauthorized - Create inv for another booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code - 403 Forbidden\", function () { ",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{guest2_jwt}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"type\": \"departure\",\n  \"items\": [\n    { \"name\": \"Fourchettes\", \"quantity\": 6 },\n    { \"name\": \"Chaises\",  \"quantity\": 4 },\n    { \"name\": \"Micro-ondes\",  \"quantity\": 1 }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/guest/bookings/{{booking4_id}}/inventories/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"guest",
+						"bookings",
+						"{{booking4_id}}",
+						"inventories",
+						""
 					]
 				}
 			},
