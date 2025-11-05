@@ -4,6 +4,7 @@ import { guestLogin } from '../controllers/guest.controller';
 import { authenticateGuestJWT } from '../middlewares/authenticateGuestJWT';
 import { enforceSelfBooking } from '../middlewares/enforceSelfBooking';
 import { getBookingById } from '../controllers/booking.controller';
+import { createInventory } from '../controllers/inventory.controller';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ const limiter = rateLimit({
 
 router.post('/login', limiter, guestLogin);
 router.get('/bookings/:booking_id', authenticateGuestJWT, enforceSelfBooking, getBookingById);
+router.post('/bookings/:booking_id/inventories/', authenticateGuestJWT, enforceSelfBooking, createInventory);
 
 export default router;
