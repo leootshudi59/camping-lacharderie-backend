@@ -4,7 +4,7 @@ import { CreateInventoryDto } from '../../dtos/create-inventory.dto';
 import { UpdateInventoryDto } from '../../dtos/update-inventory.dto';
 import { randomUUID } from 'crypto';
 
-const prisma = new PrismaClient({ datasourceUrl: process.env.DIRECT_URL });
+const prisma = new PrismaClient();
 
 export class PrismaInventoryRepository implements IInventoryRepository {
     async create(data: CreateInventoryDto): Promise<Inventory> {
