@@ -16,6 +16,7 @@ export interface IInventoryRepository {
 
   findAll(): Promise<InventoryWithMeta[]>;
   findById(id: string): Promise<InventoryWithMeta | null>;
+  findAllByBookingId(booking_id: string): Promise<InventoryWithMeta[]>;
 
   campsiteExists(campsite_id: string): Promise<boolean>;
   bookingExists(id: string): Promise<boolean>;

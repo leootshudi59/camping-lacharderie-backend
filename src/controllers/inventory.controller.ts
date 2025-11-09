@@ -18,6 +18,20 @@ export const getAllInventories = async (_: Request, res: Response) => {
   }
 };
 
+export const getAllInventoriesByBookingId = async (req: Request, res: Response): Promise<any> => {
+  try {
+    if (DEBUG_MODE) {
+      console.log("\n=====  getAllInventoriesByBookingId  =====");
+      console.log("received params: ", req.params);
+    }
+    const inventories = await service.findAllByBookingId(req.params.booking_id);
+    res.status(200).json(inventories);
+  } catch (err: any) {
+    DEBUG_MODE && console.error(err);
+    res.status(400).json({ error: err.message });
+  }
+};
+
 export const getInventoryById = async (req: Request, res: Response): Promise<any> => {
   try {
     if (DEBUG_MODE) {
