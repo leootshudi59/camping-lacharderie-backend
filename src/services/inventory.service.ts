@@ -65,6 +65,11 @@ export class InventoryService {
     return this.repo.findById(id);
   }
 
+  async findAllByBookingId(booking_id: string) {
+    if (!booking_id) throw new Error('booking_id is required');
+    return this.repo.findAllByBookingId(booking_id);
+  }
+
   async update(dto: UpdateInventoryDto): Promise<Inventory> {
     if (DEBUG_MODE) console.log("data: ", dto);
 
