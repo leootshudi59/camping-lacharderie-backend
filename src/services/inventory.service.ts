@@ -9,11 +9,11 @@ export class InventoryService {
   constructor(private repo: IInventoryRepository) {}
 
   /**
-   * Règles métier:
-   * - campsite_id obligatoire (si absent mais booking_id présent, on tente de déduire depuis le booking).
-   * - campsite_id doit exister.
-   * - Interdire 2 inventaires consécutifs de même type pour un même campsite_id.
-   * - booking_id facultatif (si présent, on met à jour le "dernier inventaire" du booking).
+   * Business rules:
+   * - campsite_id is required (if not provided but booking_id is given, we deduce it from the booking).
+   * - campsite_id must exist.
+   * - Prohibits 2 consecutive inventories of the same type for the same campsite_id.
+   * - booking_id is optional (if provided, the "last inventory" of the booking is updated).
    */
   async create(dto: CreateInventoryDto): Promise<Inventory> {
     // 1) Déterminer/valider campsite_id
@@ -21,8 +21,8 @@ export class InventoryService {
     let campsiteId = (dto as any).campsite_id ?? null;
 
     if (!campsiteId && dto.booking_id) {
-      // si l'appelant ne fournit pas campsite_id mais donne un booking_id,
-      // on déduit depuis le booking (pratique côté front)
+      // if the caller does not provide campsite_id but gives a booking_id,
+      // we deduce it from the booking (convenient from the front)
       campsiteId = await this.repo.getCampsiteIdForBooking(dto.booking_id);
     }
 
@@ -35,19 +35,19 @@ export class InventoryService {
       throw new Error('Campsite not found');
     }
 
-    // 2) booking facultatif: si fourni, s'assurer qu'il existe (cohérence)
+    // 2) booking_id is optional: if provided, ensure it exists (consistency)
     if (dto.booking_id) {
       const exists = await this.repo.bookingExists(dto.booking_id);
       if (!exists) throw new Error('Booking not found');
     }
 
-    // 3) Enchaînement arrival/arrival ou departure/departure interdit
+    // 3) Following arrival/arrival or departure/departure is forbidden
     await this.assertTypeAlternationOnCreate(campsiteId, dto.type);
 
-    // 4) Créer
+    // 4) Create
     const created = await this.repo.create({ ...dto, campsite_id: campsiteId } as any);
 
-    // 5) Si rattaché à un booking ⇒ mettre à jour "dernier inventaire" du booking
+    // 5) If attached to a booking ⇒ update "last inventory" of the booking
     if (created.booking_id) {
       await this.repo.setBookingLastInventory(created.booking_id, created.inventory_id);
     }
@@ -57,12 +57,17 @@ export class InventoryService {
 
   async findAll(): Promise<InventoryWithMeta[]> {
     const list = await this.repo.findAll();
-    // Rien de plus ici; la repo renvoie déjà booking + items_count
+    // Nothing more here; the repo already returns booking + items_count
     return list;
   }
 
   async findById(id: string): Promise<InventoryWithMeta | null> {
     return this.repo.findById(id);
+  }
+
+  async findAllByBookingId(booking_id: string) {
+    if (!booking_id) throw new Error('booking_id is required');
+    return this.repo.findAllByBookingId(booking_id);
   }
 
   async update(dto: UpdateInventoryDto): Promise<Inventory> {
@@ -75,12 +80,12 @@ export class InventoryService {
 
     const updated = await this.repo.update(dto);
 
-    // Si on a (re)rattaché à un booking, on remet à jour le "dernier inventory"
+    // If we (re)attach to a booking, update the "last inventory"
     if (updated.booking_id) {
       await this.repo.setBookingLastInventory(updated.booking_id, updated.inventory_id);
     } else {
-      // Si on a détaché l'inventory de tout booking (booking_id null),
-      // s'assurer que les bookings qui pointaient "inventory_id" vers celui-ci soient mis à null.
+      // If we detach the inventory from any booking (booking_id null),
+      // ensure that the bookings pointing to "inventory_id" are set to null.
       await this.repo.detachBookingLastInventory(updated.inventory_id);
     }
 
@@ -88,9 +93,9 @@ export class InventoryService {
   }
 
   /**
-   * Suppression forte.
-   * Attention: la FK bookings.inventory_id → inventories.inventory_id est en onDelete: NoAction.
-   * On doit donc d'abord détacher les bookings qui pointent vers cet inventaire, puis supprimer.
+   * Strong deletion.
+   * Beware: the FK bookings.inventory_id → inventories.inventory_id is onDelete: NoAction.
+   * We must therefore first detach the bookings pointing to this inventory, then delete.
    */
   async delete(id: string): Promise<void> {
     await this.repo.detachBookingLastInventory(id);
@@ -98,8 +103,8 @@ export class InventoryService {
   }
 
   /**
-   * Vérifie, avant création, qu'on n'enchaîne pas deux inventaires de même type
-   * pour le campsite donné.
+   * Verifies, before creation, that we do not chain two inventories of the same type
+   * for the given campsite.
    */
   private async assertTypeAlternationOnCreate(campsite_id: string, nextType: Inventory['type']) {
     const last = await this.repo.findLastInventoryForCampsite(campsite_id);
@@ -110,8 +115,8 @@ export class InventoryService {
   }
 
   /**
-   * Vérifie, lors d'un update (type/campsite), l'alternance par rapport au dernier inventaire
-   * de ce campsite en **excluant** l'inventaire courant (sinon on se comparerait à soi-même).
+   * Verifies, during an update (type/campsite), the alternation with respect to the last inventory
+   * of this campsite, excluding the current inventory (otherwise we would compare to ourselves).
    */
   private async assertTypeAlternationOnUpdate(
     campsite_id: string,

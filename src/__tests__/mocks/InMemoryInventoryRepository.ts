@@ -152,6 +152,37 @@ export class InMemoryInventoryRepository implements IInventoryRepository {
         }));
     }
 
+    async findAllByBookingId(booking_id: string): Promise<InventoryWithMeta[]> {
+        // filtre tous les inventaires liés à ce booking
+        const list = [...this.inventories.values()]
+            .filter(inv => inv.booking_id === booking_id)
+            .sort((a, b) => a.created_at.getTime() - b.created_at.getTime()); // aligne-toi sur ton orderBy si besoin
+
+        return list.map(inv => {
+            const items = this.itemsByInventory.get(inv.inventory_id) ?? [];
+            return {
+                ...inv,
+                booking: inv.booking_id
+                    ? { booking_id: inv.booking_id, res_name: null } // pas de nom en mémoire → null
+                    : null,
+                // si InventoryWithMeta inclut campsite, tu peux renvoyer un objet minimal
+                // ou l’omettre si le champ est optionnel dans l’interface
+                // campsite: inv.campsite_id ? { campsite_id: inv.campsite_id, name: null as any } : null,
+
+                items_count: items.length,
+                // expose les items pour être isomorphe au repo Prisma quand tu l’as activé
+                inventory_items: items.map(it => ({
+                    inventory_item_id: it.inventory_item_id,
+                    name: it.name,
+                    quantity: it.quantity,
+                    condition: it.condition ?? null,
+                    // image: null, // ajoute-le si InventoryWithMeta le prévoit
+                })),
+            } as any; // cast léger si InventoryWithMeta a des champs optionnels
+        });
+    }
+
+
     async findById(id: string): Promise<InventoryWithMeta | null> {
         const inv = this.inventories.get(id);
         if (!inv) return null;

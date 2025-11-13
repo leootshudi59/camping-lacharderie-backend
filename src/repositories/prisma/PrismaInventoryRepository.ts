@@ -4,7 +4,7 @@ import { CreateInventoryDto } from '../../dtos/create-inventory.dto';
 import { UpdateInventoryDto } from '../../dtos/update-inventory.dto';
 import { randomUUID } from 'crypto';
 
-const prisma = new PrismaClient({ datasourceUrl: process.env.DIRECT_URL });
+const prisma = new PrismaClient();
 
 export class PrismaInventoryRepository implements IInventoryRepository {
     async create(data: CreateInventoryDto): Promise<Inventory> {
@@ -141,6 +141,40 @@ export class PrismaInventoryRepository implements IInventoryRepository {
                 : null,
             items_count: inv._count.inventory_items,
         } as any;
+    }
+
+    async findAllByBookingId(booking_id: string): Promise<InventoryWithMeta[]> {
+        const inventories = await prisma.inventories.findMany({
+            where: { booking_id },
+            include: {
+                // ⚠️ ce nom de relation provient de Prisma; adapte-le si ton schéma a généré un alias différent
+                bookings_inventories_booking_idTobookings: {
+                    select: { booking_id: true, res_name: true },
+                },
+                campsite: {
+                    select: { campsite_id: true, name: true },
+                },
+                _count: { select: { inventory_items: true } },
+                inventory_items: true,
+            },
+            orderBy: { created_at: 'asc' }, // ou 'desc' selon le besoin UI
+        });
+        return inventories.map(inv => ({
+            ...inv,
+            booking: inv.bookings_inventories_booking_idTobookings
+                ? {
+                    booking_id: inv.bookings_inventories_booking_idTobookings.booking_id,
+                    res_name: inv.bookings_inventories_booking_idTobookings.res_name,
+                }
+                : null,
+            campsite: inv.campsite
+                ? {
+                    campsite_id: inv.campsite.campsite_id,
+                    name: inv.campsite.name,
+                }
+                : null,
+            items_count: inv._count.inventory_items,
+        })) as any;
     }
 
     async campsiteExists(campsite_id: string): Promise<boolean> {

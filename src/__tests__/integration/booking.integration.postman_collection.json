@@ -169,6 +169,60 @@
 					"response": []
 				},
 				{
+					"name": "Create fourth booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", () => pm.response.to.have.status(201));",
+									"const id = pm.response.json().booking_id;",
+									"pm.environment.set('booking4_id', id);",
+									"pm.environment.set('guest3_booking_id', pm.response.json().booking_id)",
+									"pm.environment.set('guest3_res_name', pm.response.json().res_name);",
+									"pm.environment.set('guest3_booking_number', pm.response.json().booking_number);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"campsite_id\": \"{{campsite3_id}}\",\n  \"phone\": \"0700000001\",\n  \"start_date\": \"2025-10-09T13:00:00Z\",\n  \"end_date\":   \"2025-10-23T11:00:00Z\",\n  \"res_name\":   \"Francis\",\n  \"booking_number\": \"C0004\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/bookings/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"bookings",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "FAIL - Add overlapping booking",
 					"event": [
 						{

@@ -16,13 +16,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code - 201 Created\", () => pm.response.to.have.status(201));",
+									"pm.test(\"✅ Status code - 201 Created\", () => pm.response.to.have.status(201));",
 									"",
 									"const id = pm.response.json().campsite_id;",
 									"pm.environment.set(\"campsite1_id\", id);"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -66,7 +67,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code - 201 Created\", function () {",
+									"pm.test(\"✅ Status code - 201 Created\", function () {",
 									"  pm.response.to.have.status(201);",
 									"});",
 									"",
@@ -74,7 +75,8 @@
 									"pm.environment.set(\"campsite2_id\", id);"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -90,6 +92,59 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"name\": \"Emplacement 7 - Mobil home 4 personnes \",\n  \"type\": \"mobilhome\",\n  \"status\": \"busy\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8000/api/campsites/",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"campsites",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create third item",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ Status code - 201 Created\", function () {",
+									"  pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const id = pm.response.json().campsite_id;",
+									"pm.environment.set(\"campsite3_id\", id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Emplacement 2 - Mobil home 4 personnes \",\n  \"type\": \"mobilhome\",\n  \"description\": \"Camping car moderne\",\n  \"status\": \"busy\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -185,7 +240,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"pm.test(\"Status code - 200\", function () {",
 									"  pm.response.to.have.status(200);",
 									"});",
 									"pm.test(\"Has at least 1 campsite\", () => {",
@@ -194,7 +249,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -229,13 +285,16 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"✅ 200 OK\", () => pm.response.to.have.status(200));",
-									"pm.test(\"Nom correct\", () => {",
+									"pm.test(\"✅ Status code - 200 OK\",function()  {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"pm.test(\"Correct name\", function() {",
 									"    pm.expect(pm.response.json().name).to.eql(\"Emplacement 13 - Châlet\");   ",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -279,7 +338,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
+							"pm.test(\"✅ Status code - 200 OK\", function () {",
 							"  pm.response.to.have.status(200);",
 							"})",
 							"pm.test(\"Name updated\", function () {",
@@ -290,7 +349,8 @@
 							"});"
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				},
 				{
@@ -300,7 +360,8 @@
 							""
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
@@ -344,12 +405,13 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 204 No Content\", function () { ",
+							"pm.test(\"Status code - 204 No Content\", function () { ",
 							"    pm.response.to.have.status(204);",
 							"});"
 						],
 						"type": "text/javascript",
-						"packages": {}
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
