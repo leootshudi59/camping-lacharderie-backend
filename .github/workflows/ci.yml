@@ -62,7 +62,7 @@ jobs:
         if: github.ref == 'refs/heads/dev'
         run: |
           npm run dev &
-          sleep 4
+          sleep 5
 
       # - name: ⏳ Wait for API to be ready
       #   if: github.ref == 'refs/heads/dev'
