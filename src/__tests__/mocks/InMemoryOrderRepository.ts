@@ -65,6 +65,21 @@ export class InMemoryOrderRepository implements IOrderRepository {
     return list;
   }
 
+  async findAllByBookingId(booking_id: string): Promise<OrderWithItems[]> {
+    const result: OrderWithItems[] = [];
+
+    for (const [order_id, order] of this.orders.entries()) {
+      // booking_id dans Order est (string | null)
+      if (order.booking_id === booking_id) {
+        const hydrated = this.hydrate(order_id);
+        if (hydrated) {
+          result.push(hydrated);
+        }
+      }
+    }
+    return result;
+  }
+
   async findById(order_id: string): Promise<OrderWithItems | null> {
     return this.hydrate(order_id) ?? null;
   }
