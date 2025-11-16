@@ -7,10 +7,12 @@ export type OrderWithItems = Order & { order_items: OrderItemWithProduct[] };
 
 export interface IOrderRepository {
   createWithItems(dto: CreateOrderDto): Promise<OrderWithItems>;
-  findAll(): Promise<OrderWithItems[]>;
-  findById(order_id: string): Promise<OrderWithItems | null>;
   updateWithItems(dto: UpdateOrderDto): Promise<OrderWithItems>;
   delete(order_id: string): Promise<void>;
+
+  findAll(): Promise<OrderWithItems[]>;
+  findById(order_id: string): Promise<OrderWithItems | null>;
+  findAllByBookingId(booking_id: string): Promise<OrderWithItems[]>;
 
   // helpers pour règles métier
   bookingExists(booking_id: string): Promise<boolean>;
