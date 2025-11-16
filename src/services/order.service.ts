@@ -9,13 +9,15 @@ export class OrderService {
   constructor(private repo: IOrderRepository) {}
 
   async create(dto: CreateOrderDto): Promise<OrderWithItems> {
-    if (DEBUG_MODE) console.log('[OrderService.create]', dto);
+    if (DEBUG_MODE) console.log('\n[OrderService.create]', dto);
 
     if (!(await this.repo.bookingExists(dto.booking_id))) {
       throw new Error('Booking not found');
     }
 
     const ids = dto.items.map(i => i.product_id);
+    if (DEBUG_MODE) console.log('ids', ids);
+    
     const found = await this.repo.findExistingAvailableProducts(ids);
     if (found.length !== ids.length) {
       throw new Error('Some products not found or unavailable');
@@ -30,6 +32,11 @@ export class OrderService {
 
   findById(order_id: string): Promise<OrderWithItems | null> {
     return this.repo.findById(order_id);
+  }
+
+  async findAllByBookingId(booking_id: string) {
+    if (!booking_id) throw new Error('booking_id is required');
+    return this.repo.findAllByBookingId(booking_id);
   }
 
   async update(dto: UpdateOrderDto): Promise<OrderWithItems> {
