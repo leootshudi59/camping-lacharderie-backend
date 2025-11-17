@@ -308,7 +308,9 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"✅ Status code - 200 OK\", function () { pm.response.to.have.status(200) });",
+							"pm.test(\"✅ Status code - 200 OK\", function () { ",
+							"    pm.response.to.have.status(200) ",
+							"});",
 							"",
 							"const ord = pm.response.json();",
 							"pm.test(\"Items replaced by single productB\", function() {",

@@ -104,7 +104,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Sac de charbon\",\n  \"category\": \"bbq\",\n  \"unit\": \"sac\",\n  \"price\": 9.9\n}",
+							"raw": "{\n  \"name\": \"Sac de charbon\",\n  \"category\": \"bbq\",\n  \"unit\": \"sac\",\n  \"price\": 9.9,\n  \"available\": true\n}",
 							"options": {
 								"raw": {
 									"language": "json"
