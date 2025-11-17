@@ -17,6 +17,10 @@
 							"script": {
 								"exec": [
 									"pm.test(\"✅ Status code - 201 Created\", function() {",
+									"    if (pm.response.code !== 201) {",
+									"        console.log(\"❌ Unexpected status:\", pm.response.code);",
+									"        console.log(\"Body:\", pm.response.text());",
+									"    }",
 									"    pm.response.to.have.status(201)",
 									"});",
 									"const ord = pm.response.json();",
@@ -26,8 +30,8 @@
 									"// Vérif d'un item + données produit incluses",
 									"const ids = ord.order_items.map(i => i.product_id);",
 									"pm.test(\"Contains both products\", function() {",
-									"  pm.expect(ids).to.include(pm.environment.get(\"productA_id\"));",
 									"  pm.expect(ids).to.include(pm.environment.get(\"productB_id\"));",
+									"  pm.expect(ids).to.include(pm.environment.get(\"productD_id\"));",
 									"});"
 								],
 								"type": "text/javascript",
@@ -47,7 +51,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"booking_id\": \"{{booking1_id}}\",\n  \"items\": [\n    { \"product_id\": \"{{productA_id}}\", \"quantity\": 2 },\n    { \"product_id\": \"{{productB_id}}\", \"quantity\": 1 }\n  ]\n}",
+							"raw": "{\n  \"booking_id\": \"{{booking1_id}}\",\n  \"items\": [\n    { \"product_id\": \"{{productB_id}}\", \"quantity\": 2 },\n    { \"product_id\": \"{{productD_id}}\", \"quantity\": 1 }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -86,7 +90,7 @@
 									"// Vérif d'un item + données produit incluses",
 									"const ids = ord.order_items.map(i => i.product_id);",
 									"pm.test(\"Contains both products\", function() {",
-									"  pm.expect(ids).to.include(pm.environment.get(\"productA_id\"));",
+									"  pm.expect(ids).to.include(pm.environment.get(\"productD_id\"));",
 									"  pm.expect(ids).to.include(pm.environment.get(\"productB_id\"));",
 									"});"
 								],
@@ -107,7 +111,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"booking_id\": \"{{booking2_id}}\",\n  \"items\": [\n    { \"product_id\": \"{{productB_id}}\", \"quantity\": 5 },\n    { \"product_id\": \"{{productA_id}}\", \"quantity\": 1 }\n  ]\n}",
+							"raw": "{\n  \"booking_id\": \"{{booking2_id}}\",\n  \"items\": [\n    { \"product_id\": \"{{productD_id}}\", \"quantity\": 5 },\n    { \"product_id\": \"{{productB_id}}\", \"quantity\": 1 }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -308,7 +312,9 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"✅ Status code - 200 OK\", function () { pm.response.to.have.status(200) });",
+							"pm.test(\"✅ Status code - 200 OK\", function () { ",
+							"    pm.response.to.have.status(200) ",
+							"});",
 							"",
 							"const ord = pm.response.json();",
 							"pm.test(\"Items replaced by single productB\", function() {",

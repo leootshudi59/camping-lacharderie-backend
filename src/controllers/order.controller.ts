@@ -18,6 +18,22 @@ export const getAllOrders = async (_: Request, res: Response) => {
   }
 };
 
+// GET /orders/booking/:booking_id  (admin)
+// GET /guest/bookings/:booking_id/orders (guest)
+export const getAllOrdersByBookingId = async (req: Request, res: Response): Promise<any> => {
+  try {
+    if (DEBUG_MODE) {
+      console.log("\n=====  getAllOrdersByBookingId  =====");
+      console.log("received params: ", req.params);
+    }
+    const orders = await service.findAllByBookingId(req.params.booking_id);
+    res.status(200).json(orders);
+  } catch (err: any) {
+    DEBUG_MODE && console.error(err);
+    res.status(400).json({ error: err.message });
+  }
+};
+
 export const getOrderById = async (req: Request, res: Response): Promise<any> => {
   try {
     const order_id = req.params.order_id;
@@ -33,19 +49,29 @@ export const getOrderById = async (req: Request, res: Response): Promise<any> =>
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    if (DEBUG_MODE) console.log('\n===== createOrder =====', req.body);
-
+    if (DEBUG_MODE) {
+      console.log('\n=====  createOrder  =====');
+      console.log('received body: ', req.body);
+      console.log('received params: ', req.params);
+    }
+    
+    // if we are on route /bookings/:booking_id/orders
+    // we need to merge booking_id from params with body
+    const merged = {
+      ...req.body,
+      ...(req.params.booking_id ? { booking_id: req.params.booking_id } : {}),
+    };
+    
     const dto = CreateOrderSchema.parse({
-      booking_id: req.body.booking_id,
-      status: req.body.status, // optionnel
-      items: req.body.items,   // [{ product_id, quantity }]
+      booking_id: merged.booking_id,
+      status: merged.status, // optionnel
+      items: merged.items,   // [{ product_id, quantity }]
     });
-
-    const created = await service.create(dto);
-    res.status(201).json(created);
-  } catch (e: any) {
-    DEBUG_MODE && console.error(e);
-    res.status(400).json({ error: e.message });
+    const ord = await service.create(dto);
+    res.status(201).json(ord);
+  } catch (err: any) {
+    DEBUG_MODE && console.error(err);
+    res.status(400).json({ error: err.message });
   }
 };
 

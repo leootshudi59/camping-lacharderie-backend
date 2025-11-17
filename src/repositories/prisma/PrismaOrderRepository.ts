@@ -44,20 +44,6 @@ export class PrismaOrderRepository implements IOrderRepository {
     });
   }
 
-  async findAll(): Promise<OrderWithItems[]> {
-    return prisma.orders.findMany({
-      include: { order_items: { include: { products: true } } },
-      orderBy: { created_at: 'desc' },
-    });
-  }
-
-  async findById(order_id: string): Promise<OrderWithItems | null> {
-    return prisma.orders.findUnique({
-      where: { order_id },
-      include: { order_items: { include: { products: true } } },
-    });
-  }
-
   async updateWithItems(dto: UpdateOrderDto): Promise<OrderWithItems> {
     await prisma.$transaction(async (tx) => {
       if (dto.items) {
@@ -88,5 +74,35 @@ export class PrismaOrderRepository implements IOrderRepository {
 
   async delete(order_id: string): Promise<void> {
     await prisma.orders.delete({ where: { order_id } });
+  }
+
+  async findAll(): Promise<OrderWithItems[]> {
+    const rows = await prisma.orders.findMany({
+      include: {
+        order_items: { include: { products: true } },
+        bookings: { select: { res_name: true } },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    return rows.map(({ bookings, ...rest }) => ({
+      ...rest,
+      booking_name: bookings?.res_name ?? null,
+    }));
+  }
+
+  async findById(order_id: string): Promise<OrderWithItems | null> {
+    return prisma.orders.findUnique({
+      where: { order_id },
+      include: { order_items: { include: { products: true } } },
+    });
+  }
+
+  async findAllByBookingId(booking_id: string): Promise<OrderWithItems[]> {
+    return prisma.orders.findMany({
+      where: { booking_id },
+      include: { order_items: { include: { products: true } } },
+      orderBy: { created_at: 'desc' },
+    });
   }
 }

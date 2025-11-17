@@ -5,6 +5,7 @@ import { authenticateGuestJWT } from '../middlewares/authenticateGuestJWT';
 import { enforceSelfBooking } from '../middlewares/enforceSelfBooking';
 import { getBookingById } from '../controllers/booking.controller';
 import { createInventory, getInventoryById } from '../controllers/inventory.controller';
+import { createOrder, getAllOrdersByBookingId } from '../controllers/order.controller';
 
 const router = Router();
 
@@ -15,9 +16,18 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
+/* Login */
 router.post('/login', limiter, guestLogin);
+
+/* Bookings */
 router.get('/bookings/:booking_id', authenticateGuestJWT, enforceSelfBooking, getBookingById);
+
+/* Inventories */
 router.post('/bookings/:booking_id/inventories/', authenticateGuestJWT, enforceSelfBooking, createInventory);
 router.get('/bookings/:booking_id/inventories/:inventory_id', authenticateGuestJWT, enforceSelfBooking, getInventoryById);
 
-export default router;
+/* Orders */
+router.get('/bookings/:booking_id/orders' , authenticateGuestJWT, enforceSelfBooking, getAllOrdersByBookingId);
+router.post('/bookings/:booking_id/orders', authenticateGuestJWT, enforceSelfBooking, createOrder);
+
+export default router; 
