@@ -17,6 +17,10 @@
 							"script": {
 								"exec": [
 									"pm.test(\"✅ Status code - 201 Created\", function() {",
+									"    if (pm.response.code !== 201) {",
+									"        console.log(\"❌ Unexpected status:\", pm.response.code);",
+									"        console.log(\"Body:\", pm.response.text());",
+									"    }",
 									"    pm.response.to.have.status(201)",
 									"});",
 									"const ord = pm.response.json();",
