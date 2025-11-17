@@ -77,10 +77,18 @@ export class PrismaOrderRepository implements IOrderRepository {
   }
 
   async findAll(): Promise<OrderWithItems[]> {
-    return prisma.orders.findMany({
-      include: { order_items: { include: { products: true } } },
+    const rows = await prisma.orders.findMany({
+      include: {
+        order_items: { include: { products: true } },
+        bookings: { select: { res_name: true } },
+      },
       orderBy: { created_at: 'desc' },
     });
+
+    return rows.map(({ bookings, ...rest }) => ({
+      ...rest,
+      booking_name: bookings?.res_name ?? null,
+    }));
   }
 
   async findById(order_id: string): Promise<OrderWithItems | null> {
