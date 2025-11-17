@@ -30,8 +30,8 @@
 									"// Vérif d'un item + données produit incluses",
 									"const ids = ord.order_items.map(i => i.product_id);",
 									"pm.test(\"Contains both products\", function() {",
-									"  pm.expect(ids).to.include(pm.environment.get(\"productA_id\"));",
 									"  pm.expect(ids).to.include(pm.environment.get(\"productB_id\"));",
+									"  pm.expect(ids).to.include(pm.environment.get(\"productD_id\"));",
 									"});"
 								],
 								"type": "text/javascript",
@@ -90,7 +90,7 @@
 									"// Vérif d'un item + données produit incluses",
 									"const ids = ord.order_items.map(i => i.product_id);",
 									"pm.test(\"Contains both products\", function() {",
-									"  pm.expect(ids).to.include(pm.environment.get(\"productA_id\"));",
+									"  pm.expect(ids).to.include(pm.environment.get(\"productD_id\"));",
 									"  pm.expect(ids).to.include(pm.environment.get(\"productB_id\"));",
 									"});"
 								],
