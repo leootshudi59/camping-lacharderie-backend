@@ -6,6 +6,7 @@ import { enforceSelfBooking } from '../middlewares/enforceSelfBooking';
 import { getBookingById } from '../controllers/booking.controller';
 import { createInventory, getInventoryById } from '../controllers/inventory.controller';
 import { createOrder, getAllOrdersByBookingId } from '../controllers/order.controller';
+import { getAllProducts } from '../controllers/product.controller';
 
 const router = Router();
 
@@ -30,4 +31,7 @@ router.get('/bookings/:booking_id/inventories/:inventory_id', authenticateGuestJ
 router.get('/bookings/:booking_id/orders' , authenticateGuestJWT, enforceSelfBooking, getAllOrdersByBookingId);
 router.post('/bookings/:booking_id/orders', authenticateGuestJWT, enforceSelfBooking, createOrder);
 
-export default router; 
+/* Products */
+router.get('/products', authenticateGuestJWT, getAllProducts);
+
+export default router;
